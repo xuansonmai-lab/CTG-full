@@ -1246,12 +1246,13 @@
                 groupICriteria.push('Không có nhịp giảm muộn nặng');
             }
             
-            // 4. Không có nhịp giảm bất định
-            if (!variableDecel) {
-                groupICriteria.push('Không có nhịp giảm bất định');
-            } else {
-                groupIFailed.push('Có nhịp giảm bất định');
-            }
+            // 4. Không có nhịp giảm bất định và nhịp giảm kéo dài
+if (!variableDecel && !prolongedDecel) {
+    groupICriteria.push('Không có nhịp giảm bất định và nhịp giảm kéo dài');
+} else {
+    if (variableDecel) groupIFailed.push('Có nhịp giảm bất định');
+    if (prolongedDecel) groupIFailed.push('Có nhịp giảm kéo dài');
+}
             
             // 5. Nhịp giảm sớm có hoặc không
             if (earlyDecel || noDecel) {
@@ -1262,7 +1263,7 @@
             groupICriteria.push('Nhịp tăng có hoặc không có');
             
             // Nếu thỏa mãn tất cả tiêu chuẩn Nhóm I
-            if (groupIFailed.length === 0 && baseline === '110-160' && variability === 'normal' && !hasLateSevere && !variableDecel) {
+            if (groupIFailed.length === 0 && baseline === '110-160' && variability === 'normal' && !hasLateSevere && !variableDecel && !prolongedDecel) {
                 return {
                     group: 'Nhóm I',
                     details: 'Phân loại: Nhóm I (Bình thường)\n\nTiêu chuẩn thỏa mãn:\n• ' + groupICriteria.join('\n• ') + '\n\nCTG bình thường, tiếp tục theo dõi thường quy.'
@@ -2743,3 +2744,4 @@
     </script>
 </body>
 </html>
+
