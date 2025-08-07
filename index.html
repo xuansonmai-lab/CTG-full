@@ -839,8 +839,9 @@
         <img class="modal-content" id="modalImage">
     </div>
 
-    <!-- Thư viện jsPDF cho xuất PDF -->
+    <!-- Thư viện jsPDF cho xuất PDF với font tiếng Việt -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script>
         // Khởi tạo
@@ -2480,161 +2481,195 @@
 
         function exportPDF() {
             try {
+                // Tạo nội dung PDF bằng HTML trước
+                createPDFContent();
+                
+            } catch (error) {
+                console.error('Lỗi khi xuất PDF:', error);
+                showNotification('❌ Lỗi khi xuất PDF: ' + error.message, 'error');
+            }
+        }
+
+        function createPDFContent() {
+            // Tạo div ẩn chứa nội dung PDF
+            const pdfContent = document.createElement('div');
+            pdfContent.id = 'pdf-content';
+            pdfContent.style.cssText = `
+                position: absolute;
+                left: -9999px;
+                width: 210mm;
+                background: white;
+                padding: 20px;
+                font-family: 'Times New Roman', serif;
+                font-size: 14px;
+                line-height: 1.6;
+                color: black;
+            `;
+
+            // Thu thập dữ liệu
+            const patientId = document.getElementById('patient-id').value || 'Chưa nhập';
+            const diagnosis = document.getElementById('diagnosis').value || 'Chưa nhập';
+            const apgar1 = document.getElementById('apgar-1').value || '';
+            const apgar2 = document.getElementById('apgar-2').value || '';
+            const phLevel = document.getElementById('ph-level').value || 'Chưa chọn';
+            const ctgDescription = document.getElementById('ctg-description').value || 'Chưa có mô tả';
+            
+            const acogResult = document.getElementById('acog-classification').value || 'Chưa phân tích';
+            const figoResult = document.getElementById('figo-classification').value || 'Chưa phân tích';
+            const japanResult = document.getElementById('japan-classification').value || 'Chưa phân tích';
+            const niceResult = document.getElementById('nice-classification').value || 'Chưa phân tích';
+            const physioResult = document.getElementById('physio-classification').value || 'Chưa phân tích';
+
+            // Tạo HTML content với tiếng Việt
+            pdfContent.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #2c5aa0; margin-bottom: 10px; font-size: 24px;">
+                        BÁO CÁO PHÂN TÍCH CTG
+                    </h1>
+                    <p style="font-size: 16px; color: #666;">
+                        Ngày phân tích: ${new Date().toLocaleDateString('vi-VN', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h2 style="color: #2c5aa0; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px;">
+                        I. THÔNG TIN BỆNH NHÂN
+                    </h2>
+                    <table style="width: 100%; margin-top: 15px; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold; width: 30%;">ID bệnh nhân:</td>
+                            <td style="padding: 8px; border-bottom: 1px dotted #ccc;">${patientId}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold; vertical-align: top;">Chẩn đoán:</td>
+                            <td style="padding: 8px; border-bottom: 1px dotted #ccc;">${diagnosis}</td>
+                        </tr>
+                        ${(apgar1 || apgar2) ? `
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold;">APGAR:</td>
+                            <td style="padding: 8px; border-bottom: 1px dotted #ccc;">${apgar1}/${apgar2}</td>
+                        </tr>
+                        ` : ''}
+                        <tr>
+                            <td style="padding: 8px; font-weight: bold;">pH cuống rốn:</td>
+                            <td style="padding: 8px; border-bottom: 1px dotted #ccc;">${phLevel}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h2 style="color: #2c5aa0; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px;">
+                        II. MÔ TẢ CTG
+                    </h2>
+                    <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #2c5aa0; border-radius: 4px;">
+                        ${ctgDescription}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h2 style="color: #2c5aa0; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px;">
+                        III. KẾT QUẢ PHÂN LOẠI
+                    </h2>
+                    
+                    <div style="margin-top: 20px;">
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <thead>
+                                <tr style="background: #2c5aa0; color: white;">
+                                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Hệ thống phân loại</th>
+                                    <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Kết quả</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">ACOG 2009</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${acogResult}</td>
+                                </tr>
+                                <tr style="background: #f8f9fa;">
+                                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">FIGO 2015</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${figoResult}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Hiệp hội Sản phụ khoa Nhật Bản</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${japanResult}</td>
+                                </tr>
+                                <tr style="background: #f8f9fa;">
+                                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">NICE 2022</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${niceResult}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Phân loại Sinh lý</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${physioResult}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; text-align: center; color: #666; font-style: italic; border-top: 1px solid #ddd; padding-top: 15px;">
+                    <p>Báo cáo được tạo tự động từ Hệ thống Phân tích CTG</p>
+                    <p>Thời gian tạo: ${new Date().toLocaleString('vi-VN')}</p>
+                </div>
+            `;
+
+            document.body.appendChild(pdfContent);
+
+            // Sử dụng html2canvas để chuyển HTML thành PDF
+            html2canvas(pdfContent, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                width: pdfContent.scrollWidth,
+                height: pdfContent.scrollHeight
+            }).then(canvas => {
                 const { jsPDF } = window.jspdf;
                 
-                // Tạo PDF với font hỗ trợ tiếng Việt
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
                 const pdf = new jsPDF({
                     orientation: 'portrait',
                     unit: 'mm',
                     format: 'a4'
                 });
 
-                let yPosition = 20;
-                const margin = 20;
-                const pageWidth = pdf.internal.pageSize.getWidth() - 2 * margin;
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
                 
-                // Header
-                pdf.setFontSize(18);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('BÁO CÁO PHÂN TÍCH CTG', margin, yPosition);
-                yPosition += 10;
-                
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'normal');
-                pdf.text(`Ngày phân tích: ${new Date().toLocaleDateString('vi-VN')}`, margin, yPosition);
-                yPosition += 15;
+                const imgWidth = pageWidth;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-                // Thông tin bệnh nhân
-                pdf.setFontSize(14);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('I. THÔNG TIN BỆNH NHÂN', margin, yPosition);
-                yPosition += 8;
-                
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
-                
-                const patientId = document.getElementById('patient-id').value || 'Chưa nhập';
-                const diagnosis = document.getElementById('diagnosis').value || 'Chưa nhập';
-                const apgar1 = document.getElementById('apgar-1').value || '';
-                const apgar2 = document.getElementById('apgar-2').value || '';
-                const phLevel = document.getElementById('ph-level').value || 'Chưa chọn';
-                
-                pdf.text(`ID bệnh nhân: ${patientId}`, margin, yPosition); yPosition += 6;
-                
-                // Chia chẩn đoán thành nhiều dòng nếu quá dài
-                if (diagnosis.length > 80) {
-                    const diagnosisLines = pdf.splitTextToSize(`Chẩn đoán: ${diagnosis}`, pageWidth);
-                    diagnosisLines.forEach(line => {
-                        pdf.text(line, margin, yPosition);
-                        yPosition += 6;
-                    });
-                } else {
-                    pdf.text(`Chẩn đoán: ${diagnosis}`, margin, yPosition); yPosition += 6;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                // Thêm trang đầu tiên
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                // Thêm các trang tiếp theo nếu cần
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
                 }
-                
-                if (apgar1 || apgar2) {
-                    pdf.text(`APGAR: ${apgar1}/${apgar2}`, margin, yPosition); yPosition += 6;
-                }
-                pdf.text(`pH cuống rốn: ${phLevel}`, margin, yPosition);
-                yPosition += 15;
 
-                // Mô tả CTG
-                pdf.setFontSize(14);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('II. MÔ TẢ CTG', margin, yPosition);
-                yPosition += 8;
-                
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
-                const ctgDescription = document.getElementById('ctg-description').value || 'Chưa có mô tả';
-                const descriptionLines = pdf.splitTextToSize(ctgDescription, pageWidth);
-                descriptionLines.forEach(line => {
-                    pdf.text(line, margin, yPosition);
-                    yPosition += 6;
-                });
-                yPosition += 10;
-
-                // Kết quả phân loại
-                pdf.setFontSize(14);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('III. KẾT QUẢ PHÂN LOẠI', margin, yPosition);
-                yPosition += 10;
-
-                // ACOG 2009
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('1. ACOG 2009:', margin, yPosition);
-                yPosition += 6;
-                
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
-                const acogResult = document.getElementById('acog-classification').value || 'Chưa phân tích';
-                pdf.text(`Kết quả: ${acogResult}`, margin + 5, yPosition);
-                yPosition += 10;
-
-                // FIGO 2015
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('2. FIGO 2015:', margin, yPosition);
-                yPosition += 6;
-                
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
-                const figoResult = document.getElementById('figo-classification').value || 'Chưa phân tích';
-                pdf.text(`Kết quả: ${figoResult}`, margin + 5, yPosition);
-                yPosition += 10;
-
-                // Japan
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('3. Hiệp hội Sản phụ khoa Nhật Bản:', margin, yPosition);
-                yPosition += 6;
-                
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
-                const japanResult = document.getElementById('japan-classification').value || 'Chưa phân tích';
-                pdf.text(`Kết quả: ${japanResult}`, margin + 5, yPosition);
-                yPosition += 10;
-
-                // NICE 2022
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('4. NICE 2022:', margin, yPosition);
-                yPosition += 6;
-                
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
-                const niceResult = document.getElementById('nice-classification').value || 'Chưa phân tích';
-                pdf.text(`Kết quả: ${niceResult}`, margin + 5, yPosition);
-                yPosition += 10;
-
-                // Physiological
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('5. Phân loại Sinh lý:', margin, yPosition);
-                yPosition += 6;
-                
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
-                const physioResult = document.getElementById('physio-classification').value || 'Chưa phân tích';
-                pdf.text(`Kết quả: ${physioResult}`, margin + 5, yPosition);
-                yPosition += 15;
-
-                // Footer
-                pdf.setFontSize(9);
-                pdf.setFont('helvetica', 'italic');
-                pdf.text('Báo cáo được tạo tự động từ Hệ thống Phân tích CTG', margin, 280);
-                
                 // Lưu file
-                const fileName = `CTG_Analysis_${patientId || 'Unknown'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                const fileName = `CTG_Analysis_${patientId}_${new Date().toISOString().split('T')[0]}.pdf`;
                 pdf.save(fileName);
                 
-                showNotification('📄 Đã xuất file PDF thành công!', 'success');
+                // Cleanup
+                document.body.removeChild(pdfContent);
                 
-            } catch (error) {
-                console.error('Lỗi khi xuất PDF:', error);
+                showNotification('📄 Đã xuất file PDF thành công!', 'success');
+            }).catch(error => {
+                console.error('Lỗi khi tạo PDF:', error);
+                document.body.removeChild(pdfContent);
                 showNotification('❌ Lỗi khi xuất PDF: ' + error.message, 'error');
-            }
+            });
         }
 
         function reassess() {
