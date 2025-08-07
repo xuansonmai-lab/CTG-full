@@ -2564,7 +2564,17 @@
 
                 <div style="margin-bottom: 25px;">
                     <h2 style="color: #2c5aa0; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px;">
-                        II. MÔ TẢ CTG
+                        II. HÌNH ẢNH CTG
+                    </h2>
+                    <div style="margin-top: 15px;">
+                        ${getImageHTML('preview-before', 'Ảnh CTG trước đó')}
+                        ${getImageHTML('preview-current', 'Ảnh CTG hiện tại')}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h2 style="color: #2c5aa0; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px;">
+                        III. MÔ TẢ CTG
                     </h2>
                     <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #2c5aa0; border-radius: 4px;">
                         ${ctgDescription}
@@ -2573,7 +2583,7 @@
 
                 <div style="margin-bottom: 25px;">
                     <h2 style="color: #2c5aa0; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px;">
-                        III. KẾT QUẢ PHÂN LOẠI
+                        IV. KẾT QUẢ PHÂN LOẠI
                     </h2>
                     
                     <div style="margin-top: 20px;">
@@ -2620,12 +2630,16 @@
 
             // Sử dụng html2canvas để chuyển HTML thành PDF
             html2canvas(pdfContent, {
-                scale: 2,
+                scale: 1.5,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
                 width: pdfContent.scrollWidth,
-                height: pdfContent.scrollHeight
+                height: pdfContent.scrollHeight,
+                scrollX: 0,
+                scrollY: 0,
+                windowWidth: pdfContent.scrollWidth,
+                windowHeight: pdfContent.scrollHeight
             }).then(canvas => {
                 const { jsPDF } = window.jspdf;
                 
@@ -2670,6 +2684,32 @@
                 document.body.removeChild(pdfContent);
                 showNotification('❌ Lỗi khi xuất PDF: ' + error.message, 'error');
             });
+        }
+
+        // Hàm helper để tạo HTML cho ảnh
+        function getImageHTML(previewId, title) {
+            const preview = document.getElementById(previewId);
+            const img = preview.querySelector('img');
+            
+            if (img && img.src && img.src !== '') {
+                return `
+                    <div style="margin-bottom: 20px; text-align: center;">
+                        <h4 style="color: #2c5aa0; margin-bottom: 10px; font-size: 16px;">${title}</h4>
+                        <div style="border: 2px solid #ddd; padding: 10px; display: inline-block; border-radius: 8px; background: #f9f9f9;">
+                            <img src="${img.src}" style="max-width: 100%; max-height: 300px; border-radius: 4px;" alt="${title}">
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div style="margin-bottom: 20px; text-align: center;">
+                        <h4 style="color: #2c5aa0; margin-bottom: 10px; font-size: 16px;">${title}</h4>
+                        <div style="border: 2px dashed #ccc; padding: 30px; color: #666; font-style: italic; border-radius: 8px; background: #f9f9f9;">
+                            Không có ảnh
+                        </div>
+                    </div>
+                `;
+            }
         }
 
         function reassess() {
