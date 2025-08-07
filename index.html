@@ -1,0 +1,2670 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân tích CTG - Sản phụ khoa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .card-header:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+        }
+
+        .card-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .card-content {
+            padding: 25px;
+            display: none;
+        }
+
+        .card-content.show {
+            display: block;
+        }
+
+        .ctg-analysis {
+            display: block !important;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .apgar-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .apgar-input input {
+            width: 80px;
+            text-align: center;
+        }
+
+        .image-upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        .image-upload-area:hover {
+            border-color: #4CAF50;
+        }
+
+        .image-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: #45a049;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .image-preview img {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .image-preview img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Modal cho ảnh phóng to */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            cursor: pointer;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10001;
+        }
+
+        .close-modal:hover {
+            opacity: 0.7;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+
+        .conditional-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .summary-section {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .summary-section h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #1976D2, #2196F3);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(45deg, #F57C00, #FF9800);
+            transform: translateY(-2px);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Phân tích CTG</h1>
+            <p>Hệ thống phân tích Cardiotocography chuyên nghiệp</p>
+        </div>
+
+        <!-- Phần I: Thông tin lâm sàng -->
+        <div class="card">
+            <div class="card-header" onclick="toggleSection('clinical-info')">
+                <h2>Phần I: Thông tin lâm sàng và kết cục sơ sinh</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="card-content" id="clinical-info">
+                <div class="form-group">
+                    <label for="patient-id">ID bệnh nhân:</label>
+                    <input type="number" id="patient-id" placeholder="Nhập ID bệnh nhân">
+                </div>
+
+                <div class="form-group">
+                    <label for="diagnosis">Chẩn đoán và ghi chú:</label>
+                    <textarea id="diagnosis" rows="4" placeholder="Bác sĩ tự nhập note..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Kết cục sơ sinh:</label>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label for="apgar">APGAR:</label>
+                        <div class="apgar-input">
+                            <input type="number" id="apgar-1" min="0" max="10" placeholder="0">
+                            <span>/</span>
+                            <input type="number" id="apgar-2" min="0" max="10" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="ph-level">pH cuống rốn:</label>
+                        <select id="ph-level">
+                            <option value="">Chọn pH cuống rốn</option>
+                            <option value="<7.0">< 7.0</option>
+                            <option value="7.0-7.1">7.0 - 7.1</option>
+                            <option value="7.1-7.2">7.1 - 7.2</option>
+                            <option value=">7.2">> 7.2</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phần II: Phân tích CTG -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Phần II: Phân tích CTG</h2>
+            </div>
+            <div class="card-content ctg-analysis">
+                <!-- Tải ảnh CTG -->
+                <div class="form-group">
+                    <label>Tải lên ảnh CTG:</label>
+                    
+                    <div class="image-upload-area">
+                        <p>📷 Ảnh CTG trước đó</p>
+                        <input type="file" id="ctg-before" accept="image/*">
+                        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                            <button type="button" class="upload-btn" onclick="document.getElementById('ctg-before').click()">
+                                📁 Chọn từ thư viện
+                            </button>
+                            <button type="button" class="upload-btn" onclick="captureImage('ctg-before')">
+                                📸 Chụp ảnh
+                            </button>
+                        </div>
+                        <div id="preview-before" class="image-preview"></div>
+                    </div>
+
+                    <div class="image-upload-area">
+                        <p>📷 Ảnh CTG hiện tại</p>
+                        <input type="file" id="ctg-current" accept="image/*">
+                        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                            <button type="button" class="upload-btn" onclick="document.getElementById('ctg-current').click()">
+                                📁 Chọn từ thư viện
+                            </button>
+                            <button type="button" class="upload-btn" onclick="captureImage('ctg-current')">
+                                📸 Chụp ảnh
+                            </button>
+                        </div>
+                        <div id="preview-current" class="image-preview"></div>
+                    </div>
+                </div>
+
+                <!-- Gò tử cung -->
+                <div class="form-group">
+                    <label for="uterine-contractions">Gò tử cung:</label>
+                    <select id="uterine-contractions">
+                        <option value="">Chọn tần suất gò</option>
+                        <option value="<5">< 5 cơn / 10 phút</option>
+                        <option value=">5">> 5 cơn / 10 phút</option>
+                        <option value=">2min">Gò > 2 phút</option>
+                    </select>
+                </div>
+
+                <!-- Tim thai căn bản -->
+                <div class="form-group">
+                    <label for="fhr-baseline">Tim thai căn bản:</label>
+                    <select id="fhr-baseline" onchange="handleFHRBaseline()">
+                        <option value="">Chọn tim thai căn bản</option>
+                        <option value="<80">< 80 bpm</option>
+                        <option value="80-99">80-99 bpm</option>
+                        <option value="100-109">100-109 bpm</option>
+                        <option value="110-160">110-160 bpm</option>
+                        <option value="160-179">160-179 bpm</option>
+                        <option value=">180">> 180 bpm</option>
+                        <option value="undefined">Không xác định được baseline</option>
+                    </select>
+                    
+                    <div id="fhr-110-160" class="conditional-section hidden">
+                        <label>Đặc điểm tim thai 110-160 bpm:</label>
+                        <select id="fhr-110-160-detail">
+                            <option value="">Chọn đặc điểm</option>
+                            <option value="stable">Ổn định và phù hợp tuổi thai</option>
+                            <option value="unstable">Không ổn định (lúc cao lúc thấp)</option>
+                            <option value="increase">Tăng ≥ 20 bpm hoặc 10% so với trước đó</option>
+                            <option value="downward">Có dấu hiệu đi xuống dần</option>
+                        </select>
+                    </div>
+
+                    <div id="fhr-100-109" class="conditional-section hidden">
+                        <label>Tim thai 100-109 bpm:</label>
+                        <select id="fhr-100-109-detail">
+                            <option value="">Chọn tình trạng</option>
+                            <option value="previous">Trước đó có như vậy</option>
+                            <option value="new">100-109 này là mới xuất hiện</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dao động nội tại -->
+                <div class="form-group">
+                    <label for="variability">Dao động nội tại:</label>
+                    <select id="variability" onchange="handleVariability()">
+                        <option value="">Chọn dao động nội tại</option>
+                        <option value="absent">Mất (<3)</option>
+                        <option value="minimal">Tối thiểu (3-5)</option>
+                        <option value="normal">Bình thường (6-25)</option>
+                        <option value="increased">Tăng (>25)</option>
+                        <option value="sinusoidal">Hình dạng sin</option>
+                    </select>
+
+                    <div id="variability-absent-minimal" class="conditional-section hidden">
+                        <label>Thời gian kéo dài:</label>
+                        <select id="variability-duration">
+                            <option value="">Chọn thời gian</option>
+                            <option value="30-40">30-40 phút</option>
+                            <option value="40-50">40-50 phút</option>
+                            <option value="50-90">50-90 phút</option>
+                            <option value=">90">> 90 phút</option>
+                        </select>
+                    </div>
+
+                    <div id="variability-increased" class="conditional-section hidden">
+                        <label>Thời gian tăng:</label>
+                        <select id="variability-increased-duration">
+                            <option value="">Chọn thời gian</option>
+                            <option value="<10">< 10 phút</option>
+                            <option value=">10">> 10 phút</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Nhịp giảm -->
+                <div class="form-group">
+                    <label>Nhịp giảm:</label>
+                    <div class="checkbox-group" id="deceleration-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="no-decel" onchange="handleDeceleration('none')">
+                            <label for="no-decel">Không có nhịp giảm</label>
+                        </div>
+                        
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="early-decel" onchange="handleDeceleration('early')">
+                            <label for="early-decel">Nhịp giảm sớm</label>
+                            <!-- Chi tiết nhịp giảm sớm -->
+                            <div id="early-decel-details" class="conditional-section hidden" style="margin-left: 30px; margin-top: 10px;">
+                                <label>Đặc điểm nhịp giảm sớm:</label>
+                                <select id="early-decel-pattern">
+                                    <option value="">Chọn đặc điểm</option>
+                                    <option value="isolated">Đơn lẻ - không lặp lại</option>
+                                    <option value="repetitive">Lặp lại</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="variable-decel" onchange="handleDeceleration('variable')">
+                            <label for="variable-decel">Nhịp giảm bất định</label>
+                            <!-- Chi tiết nhịp giảm bất định -->
+                            <div id="variable-decel-details" class="conditional-section hidden" style="margin-left: 30px; margin-top: 10px;">
+                                <div style="margin-bottom: 15px;">
+                                    <label>Mức độ:</label>
+                                    <select id="variable-severity">
+                                        <option value="">Chọn mức độ</option>
+                                        <option value="mild">Nhẹ</option>
+                                        <option value="severe-70">Nặng: Nadir < 70 nhịp/phút và kéo dài > 30 giây</option>
+                                        <option value="severe-80">Nặng: Nadir 70-80 nhịp/phút và kéo dài > 60 giây</option>
+                                    </select>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <label>Đặc điểm đáng ngại (có thể chọn nhiều):</label>
+                                    <div class="checkbox-group">
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="prolonged-60">
+                                            <label for="prolonged-60">Kéo dài > 60 giây</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="decreased-variability">
+                                            <label for="decreased-variability">Giảm dao động nội tại trong nhịp giảm</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="slow-return">
+                                            <label for="slow-return">Trở về tim thai cơ bản chậm hoặc không trở về</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="lost-shouldering">
+                                            <label for="lost-shouldering">Mất dạng vai (shouldering)</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <label>Tính chất lặp lại:</label>
+                                    <select id="variable-repetitive">
+                                        <option value="">Chọn tính chất</option>
+                                        <option value="non-repetitive">Không lặp lại</option>
+                                        <option value="repetitive">Lặp lại</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label>Thời gian xuất hiện:</label>
+                                    <select id="variable-duration">
+                                        <option value="">Chọn thời gian</option>
+                                        <option value=">30">> 30 phút</option>
+                                        <option value="<30">< 30 phút</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="late-decel" onchange="handleDeceleration('late')">
+                            <label for="late-decel">Nhịp giảm muộn</label>
+                            <!-- Chi tiết nhịp giảm muộn -->
+                            <div id="late-decel-details" class="conditional-section hidden" style="margin-left: 30px; margin-top: 10px;">
+                                <div style="margin-bottom: 15px;">
+                                    <label>Mức độ:</label>
+                                    <select id="late-severity">
+                                        <option value="">Chọn mức độ</option>
+                                        <option value="mild">Nhẹ</option>
+                                        <option value="severe">Nặng: Nadir thấp hơn 15 bpm so với tim thai căn bản</option>
+                                    </select>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <label>Tính chất lặp lại:</label>
+                                    <select id="late-repetitive">
+                                        <option value="">Chọn tính chất</option>
+                                        <option value="non-repetitive">Không lặp lại</option>
+                                        <option value="repetitive">Lặp lại</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label>Xuất hiện:</label>
+                                    <select id="late-duration">
+                                        <option value="">Chọn thời gian</option>
+                                        <option value=">30">> 30 phút</option>
+                                        <option value="<30">< 30 phút</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="prolonged-decel" onchange="handleDeceleration('prolonged')">
+                            <label for="prolonged-decel">Nhịp giảm kéo dài</label>
+                            <!-- Chi tiết nhịp giảm kéo dài -->
+                            <div id="prolonged-decel-details" class="conditional-section hidden" style="margin-left: 30px; margin-top: 10px;">
+                                <div style="margin-bottom: 15px;">
+                                    <label>Mức độ:</label>
+                                    <select id="prolonged-severity">
+                                        <option value="">Chọn mức độ</option>
+                                        <option value="mild">Nhẹ</option>
+                                        <option value="severe">Nặng: Nadir < 80 bpm</option>
+                                    </select>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <label>Xuất hiện:</label>
+                                    <select id="prolonged-onset">
+                                        <option value="">Chọn thời gian xuất hiện</option>
+                                        <option value="<20">< 20 phút</option>
+                                        <option value="20-30">20-30 phút</option>
+                                        <option value=">30">> 30 phút</option>
+                                    </select>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <label>Độ dài:</label>
+                                    <select id="prolonged-length">
+                                        <option value="">Chọn độ dài</option>
+                                        <option value="2-3">2-3 phút</option>
+                                        <option value=">3">> 3 phút</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label>Có tim thai chậm cấp tính không?</label>
+                                    <select id="acute-bradycardia">
+                                        <option value="">Chọn</option>
+                                        <option value="yes">Có</option>
+                                        <option value="no">Không</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="decel-time-question" class="conditional-section hidden">
+                        <label>Câu hỏi bổ sung về nhịp giảm:</label>
+                        
+                        <div class="checkbox-group" style="margin-top: 10px;">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="baseline-rise-after-decel">
+                                <label for="baseline-rise-after-decel">Có hiện tượng tim thai căn bản tăng sau khi xuất hiện nhịp giảm</label>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="time-in-decel-more">
+                                <label for="time-in-decel-more">Thời gian thai trong nhịp giảm > thời gian trong tim thai căn bản</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nhịp tăng -->
+                <div class="form-group">
+                    <label for="accelerations">Nhịp tăng:</label>
+                    <select id="accelerations" onchange="handleAccelerations()">
+                        <option value="">Chọn nhịp tăng</option>
+                        <option value="yes">Có</option>
+                        <option value="no">Không</option>
+                    </select>
+
+                    <div id="no-accelerations-details" class="conditional-section hidden">
+                        <div style="margin-bottom: 15px;">
+                            <label>Còn chu kỳ tỉnh - ngủ không?</label>
+                            <select id="sleep-wake-cycle">
+                                <option value="">Chọn</option>
+                                <option value="yes">Có</option>
+                                <option value="no">Không</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>Có mất nhịp tăng sau những nhịp giảm không?</label>
+                            <select id="lost-accelerations">
+                                <option value="">Chọn</option>
+                                <option value="yes">Có (dấu hiệu thiếu oxy diễn tiến)</option>
+                                <option value="no">Không</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tổng quát -->
+                <div class="summary-section">
+                    <h3>📋 Tổng quát</h3>
+                    
+                    <div class="form-group">
+                        <label for="clinical-diagnosis">Chẩn đoán lâm sàng:</label>
+                        <textarea id="clinical-diagnosis" rows="3" readonly></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ctg-description">Mô tả CTG:</label>
+                        <textarea id="ctg-description" rows="4" readonly></textarea>
+                    </div>
+                </div>
+
+                <!-- Kết quả phân tích (ẩn ban đầu) -->
+                <div id="analysis-results" class="hidden">
+                    <!-- Phân loại ACOG 2009 -->
+                    <div class="summary-section" style="background: #e3f2fd;">
+                        <h3>🔬 Phân loại ACOG 2009</h3>
+                        
+                        <div class="form-group">
+                            <label for="acog-classification">Nhóm phân loại:</label>
+                            <input type="text" id="acog-classification" readonly style="font-weight: bold; font-size: 1.1rem;">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="acog-details">Chi tiết phân loại:</label>
+                            <textarea id="acog-details" rows="5" readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Phân loại FIGO 2015 -->
+                    <div class="summary-section" style="background: #f0f8e8;">
+                        <h3>🌍 Phân loại FIGO 2015</h3>
+                        
+                        <div class="form-group">
+                            <label for="figo-classification">Phân loại:</label>
+                            <input type="text" id="figo-classification" readonly style="font-weight: bold; font-size: 1.1rem;">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="figo-details">Chi tiết đánh giá:</label>
+                            <textarea id="figo-details" rows="5" readonly></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="figo-management">Xử trí lâm sàng:</label>
+                            <textarea id="figo-management" rows="3" readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Phân loại NICE 2022 -->
+                    <div class="summary-section" style="background: #f3e5f5;">
+                        <h3>🇬🇧 Phân loại NICE 2022</h3>
+                        
+                        <div class="form-group">
+                            <label for="nice-classification">Kết quả phân loại:</label>
+                            <input type="text" id="nice-classification" readonly style="font-weight: bold; font-size: 1.1rem;">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nice-details">Chi tiết từng tiêu chí:</label>
+                            <textarea id="nice-details" rows="6" readonly></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nice-management">Khuyến nghị xử trí:</label>
+                            <textarea id="nice-management" rows="3" readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Phân loại Hiệp hội Sản phụ khoa Nhật Bản -->
+                    <div class="summary-section" style="background: #ffe8e8;">
+                        <h3>🇯🇵 Phân loại Hiệp hội Sản phụ khoa Nhật Bản (5 mức)</h3>
+                        
+                        <div class="form-group">
+                            <label for="japan-classification">Mức phân loại:</label>
+                            <input type="text" id="japan-classification" readonly style="font-weight: bold; font-size: 1.1rem;">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="japan-details">Chi tiết phân loại:</label>
+                            <textarea id="japan-details" rows="6" readonly></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="japan-interpretation">Ý nghĩa lâm sàng:</label>
+                            <textarea id="japan-interpretation" rows="3" readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Phân loại theo Sinh lý (Physiological) -->
+                    <div class="summary-section" style="background: #e8f4fd;">
+                        <h3>🧬 Phân loại theo Sinh lý (Physiological Interpretation)</h3>
+                        
+                        <div class="form-group">
+                            <label for="physio-classification">Phân loại:</label>
+                            <input type="text" id="physio-classification" readonly style="font-weight: bold; font-size: 1.1rem;">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="physio-details">Đặc điểm sinh lý:</label>
+                            <textarea id="physio-details" rows="6" readonly></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="physio-management">Khuyến nghị xử trí:</label>
+                            <textarea id="physio-management" rows="4" readonly></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút hành động -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="saveAndAnalyzeCTG()">
+                        💾 Lưu và phân tích CTG
+                    </button>
+                    <button class="btn btn-success" onclick="exportPDF()">
+                        📄 Xuất file PDF
+                    </button>
+                    <button class="btn btn-warning" onclick="reassess()">
+                        🔄 Đánh giá lại
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal cho phóng to ảnh -->
+    <div id="imageModal" class="image-modal" onclick="closeImageModal()">
+        <span class="close-modal" onclick="closeImageModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <!-- Thư viện jsPDF cho xuất PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', function() {
+            setupImageUpload();
+            updateSummary();
+        });
+
+        // Toggle section
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId);
+            const header = content.previousElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                icon.classList.remove('rotated');
+            } else {
+                content.classList.add('show');
+                icon.classList.add('rotated');
+            }
+        }
+
+        // Xử lý upload ảnh
+        function setupImageUpload() {
+            ['ctg-before', 'ctg-current'].forEach(id => {
+                document.getElementById(id).addEventListener('change', function(e) {
+                    handleImageUpload(e, id);
+                });
+            });
+        }
+
+        function handleImageUpload(event, inputId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewId = inputId === 'ctg-before' ? 'preview-before' : 'preview-current';
+                    const preview = document.getElementById(previewId);
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = 'CTG Preview';
+                    img.onclick = function() { openImageModal(e.target.result); };
+                    preview.innerHTML = '';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Hàm phóng to ảnh
+        function openImageModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').style.display = 'block';
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Hàm chụp ảnh
+        function captureImage(inputId) {
+            const input = document.getElementById(inputId);
+            input.setAttribute('capture', 'camera');
+            input.click();
+        }
+
+        // Xử lý tim thai căn bản
+        function handleFHRBaseline() {
+            const value = document.getElementById('fhr-baseline').value;
+            
+            // Ẩn tất cả các section
+            document.getElementById('fhr-110-160').classList.add('hidden');
+            document.getElementById('fhr-100-109').classList.add('hidden');
+            
+            // Hiển thị section tương ứng
+            if (value === '110-160') {
+                document.getElementById('fhr-110-160').classList.remove('hidden');
+            } else if (value === '100-109') {
+                document.getElementById('fhr-100-109').classList.remove('hidden');
+            }
+            
+            updateSummary();
+        }
+
+        // Xử lý dao động nội tại
+        function handleVariability() {
+            const value = document.getElementById('variability').value;
+            
+            // Ẩn tất cả các section
+            document.getElementById('variability-absent-minimal').classList.add('hidden');
+            document.getElementById('variability-increased').classList.add('hidden');
+            
+            // Hiển thị section tương ứng
+            if (value === 'absent' || value === 'minimal') {
+                document.getElementById('variability-absent-minimal').classList.remove('hidden');
+            } else if (value === 'increased') {
+                document.getElementById('variability-increased').classList.remove('hidden');
+            }
+            
+            updateSummary();
+        }
+
+        // Xử lý nhịp giảm
+        function handleDeceleration(type) {
+            const checkboxes = document.querySelectorAll('#deceleration-group input[type="checkbox"]');
+            
+            if (type === 'none') {
+                const noDecel = document.getElementById('no-decel');
+                if (noDecel.checked) {
+                    // Bỏ chọn tất cả các checkbox khác
+                    checkboxes.forEach(cb => {
+                        if (cb.id !== 'no-decel') cb.checked = false;
+                    });
+                    // Ẩn tất cả các section chi tiết
+                    hideAllDecelDetails();
+                }
+            } else {
+                // Nếu chọn bất kỳ loại nhịp giảm nào khác, bỏ chọn "không có nhịp giảm"
+                document.getElementById('no-decel').checked = false;
+                showDecelDetails(type);
+            }
+            
+            updateDecelTimeQuestion();
+            updateSummary();
+        }
+
+        function hideAllDecelDetails() {
+            ['early-decel-details', 'variable-decel-details', 'late-decel-details', 
+             'prolonged-decel-details', 'decel-time-question'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+        }
+
+        function showDecelDetails(type) {
+            const detailsMap = {
+                'early': 'early-decel-details',
+                'variable': 'variable-decel-details',
+                'late': 'late-decel-details',
+                'prolonged': 'prolonged-decel-details'
+            };
+            
+            if (detailsMap[type]) {
+                document.getElementById(detailsMap[type]).classList.remove('hidden');
+            }
+        }
+
+        function updateDecelTimeQuestion() {
+            const hasDecel = ['early-decel', 'variable-decel', 'late-decel', 'prolonged-decel']
+                .some(id => document.getElementById(id).checked);
+            const noDecel = document.getElementById('no-decel').checked;
+            
+            if (hasDecel && !noDecel) {
+                document.getElementById('decel-time-question').classList.remove('hidden');
+            } else {
+                document.getElementById('decel-time-question').classList.add('hidden');
+            }
+        }
+
+        // Xử lý nhịp tăng
+        function handleAccelerations() {
+            const value = document.getElementById('accelerations').value;
+            
+            if (value === 'no') {
+                document.getElementById('no-accelerations-details').classList.remove('hidden');
+            } else {
+                document.getElementById('no-accelerations-details').classList.add('hidden');
+            }
+            
+            updateSummary();
+        }
+
+        // Cập nhật tổng quát
+        function updateSummary() {
+            const diagnosis = generateClinicalDiagnosis();
+            const ctgDescription = generateCTGDescription();
+            
+            document.getElementById('clinical-diagnosis').value = diagnosis;
+            document.getElementById('ctg-description').value = ctgDescription;
+        }
+
+        function generateClinicalDiagnosis() {
+            let diagnosis = [];
+            
+            // Thông tin cơ bản
+            const patientId = document.getElementById('patient-id').value;
+            if (patientId) {
+                diagnosis.push(`Bệnh nhân ID: ${patientId}`);
+            }
+            
+            const diagnosisNote = document.getElementById('diagnosis').value;
+            if (diagnosisNote) {
+                diagnosis.push(diagnosisNote);
+            }
+            
+            return diagnosis.join(', ');
+        }
+
+        // Cập nhật mô tả CTG để hiển thị multiple decelerations
+        function generateCTGDescription() {
+            let description = [];
+            
+            // Gò tử cung
+            const contractions = document.getElementById('uterine-contractions').value;
+            if (contractions === '>5') {
+                description.push('gò cường tính');
+            } else if (contractions) {
+                description.push(`gò tử cung ${contractions}`);
+            }
+            
+            // Tim thai
+            const fhr = document.getElementById('fhr-baseline').value;
+            if (fhr === '<80' || fhr === '80-99' || fhr === '100-109') {
+                description.push('tim thai chậm');
+            } else if (fhr === '160-179' || fhr === '>180') {
+                description.push('tim thai nhanh');
+            } else if (fhr === '110-160') {
+                const detail = document.getElementById('fhr-110-160-detail').value;
+                if (detail === 'stable') {
+                    description.push('tim thai ổn định');
+                } else if (detail === 'unstable') {
+                    description.push('tim thai không ổn định');
+                }
+            }
+            
+            // Dao động nội tại
+            const variability = document.getElementById('variability').value;
+            const variabilityMap = {
+                'absent': 'mất dao động nội tại',
+                'minimal': 'dao động nội tại tối thiểu',
+                'normal': 'dao động nội tại bình thường',
+                'increased': 'dao động nội tại tăng',
+                'sinusoidal': 'dao động hình sin'
+            };
+            if (variabilityMap[variability]) {
+                description.push(variabilityMap[variability]);
+            }
+            
+            // Nhịp giảm - mô tả tất cả loại được chọn
+            const decelTypes = [];
+            
+            if (document.getElementById('no-decel').checked) {
+                decelTypes.push('không có nhịp giảm');
+            } else {
+                if (document.getElementById('early-decel').checked) {
+                    decelTypes.push('nhịp giảm sớm');
+                }
+                
+                if (document.getElementById('variable-decel').checked) {
+                    let varDecel = 'nhịp giảm bất định';
+                    const severity = document.getElementById('variable-severity').value;
+                    if (severity && severity.includes('severe')) {
+                        varDecel += ' nặng';
+                    }
+                    
+                    // Kiểm tra đặc điểm đáng ngại
+                    const concerningFeatures = [];
+                    if (document.getElementById('prolonged-60').checked) concerningFeatures.push('kéo dài');
+                    if (document.getElementById('decreased-variability').checked) concerningFeatures.push('giảm dao động');
+                    if (document.getElementById('slow-return').checked) concerningFeatures.push('trở về chậm');
+                    if (document.getElementById('lost-shouldering').checked) concerningFeatures.push('mất vai');
+                    
+                    if (concerningFeatures.length > 0) {
+                        varDecel += ' có đặc điểm đáng ngại';
+                    }
+                    
+                    const repetitive = document.getElementById('variable-repetitive').value;
+                    if (repetitive === 'repetitive') {
+                        varDecel += ' lặp lại';
+                    }
+                    
+                    const duration = document.getElementById('variable-duration').value;
+                    if (duration === '>30') {
+                        varDecel += ' > 30 phút';
+                    }
+                    
+                    decelTypes.push(varDecel);
+                }
+                
+                if (document.getElementById('late-decel').checked) {
+                    let lateDecel = 'nhịp giảm muộn';
+                    const severity = document.getElementById('late-severity').value;
+                    if (severity === 'severe') {
+                        lateDecel += ' nặng';
+                    } else if (severity === 'mild') {
+                        lateDecel += ' nhẹ';
+                    }
+                    
+                    const repetitive = document.getElementById('late-repetitive').value;
+                    if (repetitive === 'repetitive') {
+                        lateDecel += ' lặp lại';
+                    }
+                    
+                    decelTypes.push(lateDecel);
+                }
+                
+                if (document.getElementById('prolonged-decel').checked) {
+                    let prolongedDecel = 'nhịp giảm kéo dài';
+                    const severity = document.getElementById('prolonged-severity').value;
+                    if (severity === 'severe') {
+                        prolongedDecel += ' nặng';
+                    }
+                    
+                    decelTypes.push(prolongedDecel);
+                }
+            }
+            
+            if (decelTypes.length > 0) {
+                description.push(decelTypes.join(', '));
+            }
+            
+            // Nhịp tăng
+            const accelerations = document.getElementById('accelerations').value;
+            if (accelerations === 'no') {
+                description.push('không có nhịp tăng');
+            }
+            
+            return description.join(', ');
+        }
+
+        // Tính toán phân loại ACOG 2009
+        function calculateACOGClassification() {
+            const baseline = document.getElementById('fhr-baseline').value;
+            const variability = document.getElementById('variability').value;
+            const noDecel = document.getElementById('no-decel').checked;
+            const earlyDecel = document.getElementById('early-decel').checked;
+            const variableDecel = document.getElementById('variable-decel').checked;
+            const lateDecel = document.getElementById('late-decel').checked;
+            const prolongedDecel = document.getElementById('prolonged-decel').checked;
+            
+            // Kiểm tra Nhóm III trước
+            // Trường hợp 1: Không có dao động nội tại (<3) + các yếu tố khác
+            if (variability === 'absent') {
+                let groupIIIReasons = ['Không có dao động nội tại (<3)'];
+                
+                // Nhịp giảm muộn nặng lặp lại
+                if (lateDecel) {
+                    const lateSeverity = document.getElementById('late-severity').value;
+                    const lateRepetitive = document.getElementById('late-repetitive').value;
+                    if (lateSeverity === 'severe' && lateRepetitive === 'repetitive') {
+                        groupIIIReasons.push('nhịp giảm muộn nặng lặp lại');
+                    }
+                }
+                
+                // Nhịp giảm bất định lặp lại
+                if (variableDecel) {
+                    const varRepetitive = document.getElementById('variable-repetitive').value;
+                    if (varRepetitive === 'repetitive') {
+                        groupIIIReasons.push('nhịp giảm bất định lặp lại');
+                    }
+                }
+                
+                // Tim thai căn bản chậm
+                if (baseline === '<80' || baseline === '80-99' || baseline === '100-109') {
+                    groupIIIReasons.push('tim thai căn bản chậm (dưới 110 bpm)');
+                }
+                
+                if (groupIIIReasons.length > 1) {
+                    return {
+                        group: 'Nhóm III',
+                        details: 'Phân loại: Nhóm III\n\nTiêu chuẩn: ' + groupIIIReasons.join(' kèm theo ') + '\n\nĐây là CTG bất thường có nguy cơ cao, cần can thiệp ngay lập tức.'
+                    };
+                }
+            }
+            
+            // Trường hợp 2: Biểu đồ dạng hình sin
+            if (variability === 'sinusoidal') {
+                return {
+                    group: 'Nhóm III',
+                    details: 'Phân loại: Nhóm III\n\nTiêu chuẩn: Biểu đồ dạng hình sin\n\nĐây là CTG bất thường có nguy cơ cao, cần can thiệp ngay lập tức.'
+                };
+            }
+            
+            // Kiểm tra Nhóm I
+            let groupICriteria = [];
+            let groupIFailed = [];
+            
+            // 1. Baseline 110-160
+            if (baseline === '110-160') {
+                groupICriteria.push('Tim thai căn bản 110-160 nhịp/phút');
+            } else {
+                groupIFailed.push('Tim thai căn bản không trong khoảng 110-160');
+            }
+            
+            // 2. Dao động nội tại 5-25 (bình thường)
+            if (variability === 'normal') {
+                groupICriteria.push('Dao động nội tại bình thường (6-25)');
+            } else {
+                groupIFailed.push('Dao động nội tại không bình thường');
+            }
+            
+            // 3. Không có nhịp giảm muộn nặng
+            let hasLateSevere = false;
+            if (lateDecel) {
+                const lateSeverity = document.getElementById('late-severity').value;
+                if (lateSeverity === 'severe') {
+                    hasLateSevere = true;
+                    groupIFailed.push('Có nhịp giảm muộn nặng');
+                }
+            }
+            if (!hasLateSevere) {
+                groupICriteria.push('Không có nhịp giảm muộn nặng');
+            }
+            
+            // 4. Không có nhịp giảm bất định
+            if (!variableDecel) {
+                groupICriteria.push('Không có nhịp giảm bất định');
+            } else {
+                groupIFailed.push('Có nhịp giảm bất định');
+            }
+            
+            // 5. Nhịp giảm sớm có hoặc không
+            if (earlyDecel || noDecel) {
+                groupICriteria.push('Nhịp giảm sớm có hoặc không có');
+            }
+            
+            // 6. Nhịp tăng có hoặc không
+            groupICriteria.push('Nhịp tăng có hoặc không có');
+            
+            // Nếu thỏa mãn tất cả tiêu chuẩn Nhóm I
+            if (groupIFailed.length === 0 && baseline === '110-160' && variability === 'normal' && !hasLateSevere && !variableDecel) {
+                return {
+                    group: 'Nhóm I',
+                    details: 'Phân loại: Nhóm I (Bình thường)\n\nTiêu chuẩn thỏa mãn:\n• ' + groupICriteria.join('\n• ') + '\n\nCTG bình thường, tiếp tục theo dõi thường quy.'
+                };
+            }
+            
+            // Nếu không phải Nhóm I hoặc III thì là Nhóm II
+            let groupIIReasons = [];
+            if (groupIFailed.length > 0) {
+                groupIIReasons = groupIFailed;
+            } else {
+                groupIIReasons.push('Không đủ tiêu chuẩn để phân vào Nhóm I hoặc Nhóm III');
+            }
+            
+            return {
+                group: 'Nhóm II',
+                details: 'Phân loại: Nhóm II (Không xác định)\n\nLý do:\n• ' + groupIIReasons.join('\n• ') + '\n\nCần tiếp tục theo dõi chặt chẽ và đánh giá lại trong thời gian ngắn.'
+            };
+        }
+
+        // Tính toán phân loại NICE 2022
+        function calculateNICEClassification() {
+            // 1. Kiểm tra các trường bắt buộc
+            const baseline = document.getElementById('fhr-baseline').value;
+            if (baseline === '100-109') {
+                const detail = document.getElementById('fhr-100-109-detail').value;
+                if (!detail) {
+                    return {
+                        classification: 'Thiếu thông tin',
+                        details: 'Cần chọn chi tiết cho tim thai 100-109 bpm (đã có từ trước hay mới xuất hiện)',
+                        management: 'Vui lòng hoàn thiện thông tin để có kết quả phân tích chính xác.'
+                    };
+                }
+            }
+
+            // Phân tích từng tiêu chí
+            const contractions = analyzeContractions();
+            const fhrBaseline = analyzeFHRBaseline();
+            const variability = analyzeVariability();
+            const decelerations = analyzeDecelerations();
+
+            // Đếm số tiêu chí ở mỗi mức
+            let normalCount = 0;
+            let suspiciousCount = 0;
+            let abnormalCount = 0;
+            let unclassifiedCount = 0;
+
+            const criteria = [contractions, fhrBaseline, variability, decelerations];
+            
+            criteria.forEach(criterion => {
+                if (criterion.category === 'normal') normalCount++;
+                else if (criterion.category === 'suspicious') suspiciousCount++;
+                else if (criterion.category === 'abnormal') abnormalCount++;
+                else if (criterion.category === 'unclassified') unclassifiedCount++;
+            });
+
+            // Xác định phân loại tổng thể
+            let finalClassification;
+            let color;
+            let management;
+
+            if (unclassifiedCount > 0) {
+                finalClassification = 'Unclassified';
+                color = '#9e9e9e';
+                management = 'Không thể phân loại theo NICE 2022 do có yếu tố không được định nghĩa trong hướng dẫn.';
+            } else if (abnormalCount >= 1 || suspiciousCount >= 2) {
+                finalClassification = 'BẤT THƯỜNG (Đỏ)';
+                color = '#f44336';
+                management = 'Đánh giá toàn diện bao gồm mẹ; hồi sinh, hồi sức; cân nhắc kích thích đầu thai, loại trừ tai biến cấp và cân nhắc CDTK ngay.';
+            } else if (suspiciousCount === 1) {
+                finalClassification = 'NGHI NGỜ (Vàng)';
+                color = '#ff9800';
+                management = 'Đánh giá toàn diện, bao gồm cả mẹ; hỏi căn nguyên, hồi sức; cân nhắc kích thích đầu thai hoặc thục đẩy/chuyển dạ/CTDK.';
+            } else if (normalCount === 4) {
+                finalClassification = 'BÌNH THƯỜNG (Trắng)';
+                color = '#4caf50';
+                management = 'Tiếp tục theo dõi thường quy.';
+            } else {
+                finalClassification = 'Không xác định';
+                color = '#9e9e9e';
+                management = 'Cần đánh giá lại các tiêu chí.';
+            }
+
+            // Tạo chi tiết
+            const details = [
+                `1. Gò tử cung: ${contractions.description} → ${contractions.category.toUpperCase()}`,
+                `2. Tim thai căn bản: ${fhrBaseline.description} → ${fhrBaseline.category.toUpperCase()}`,
+                `3. Dao động nội tại: ${variability.description} → ${variability.category.toUpperCase()}`,
+                `4. Nhịp giảm: ${decelerations.description} → ${decelerations.category.toUpperCase()}`,
+                '',
+                `Tổng kết: ${normalCount} bình thường, ${suspiciousCount} nghi ngờ, ${abnormalCount} bất thường${unclassifiedCount > 0 ? `, ${unclassifiedCount} không phân loại được` : ''}`
+            ].join('\n');
+
+            return {
+                classification: finalClassification,
+                color: color,
+                details: details,
+                management: management
+            };
+        }
+
+        // Phân tích gò tử cung
+        function analyzeContractions() {
+            const value = document.getElementById('uterine-contractions').value;
+            
+            if (value === '<5') {
+                return { category: 'normal', description: '< 5 cơn/10 phút' };
+            } else if (value === '>5' || value === '>2min') {
+                return { category: 'suspicious', description: '≥ 5 cơn/10 phút hoặc kéo dài ≥ 2 phút' };
+            } else {
+                return { category: 'normal', description: 'Chưa đánh giá' };
+            }
+        }
+
+        // Phân tích tim thai căn bản
+        function analyzeFHRBaseline() {
+            const baseline = document.getElementById('fhr-baseline').value;
+            
+            if (baseline === '<80' || baseline === '80-99' || baseline === '160-179' || baseline === '>180') {
+                return { category: 'abnormal', description: `${baseline} bpm` };
+            }
+            
+            if (baseline === '100-109') {
+                const detail = document.getElementById('fhr-100-109-detail').value;
+                if (detail === 'previous') {
+                    return { category: 'normal', description: '100-109 bpm (đã có từ trước)' };
+                } else if (detail === 'new') {
+                    return { category: 'suspicious', description: '100-109 bpm (mới xuất hiện)' };
+                }
+            }
+            
+            if (baseline === '110-160') {
+                const detail = document.getElementById('fhr-110-160-detail').value;
+                if (detail === 'stable') {
+                    return { category: 'normal', description: '110-160 bpm, ổn định và phù hợp tuổi thai' };
+                } else if (detail === 'unstable') {
+                    return { category: 'suspicious', description: '110-160 bpm nhưng không ổn định' };
+                } else if (detail === 'increase') {
+                    return { category: 'suspicious', description: 'Tăng ≥ 20 bpm so với trước đó' };
+                } else if (detail === 'downward') {
+                    return { category: 'suspicious', description: '110-160 bpm nhưng có dấu hiệu đi xuống dần' };
+                }
+            }
+            
+            if (baseline === 'undefined') {
+                return { category: 'suspicious', description: 'Không xác định được baseline' };
+            }
+            
+            return { category: 'normal', description: 'Chưa đánh giá' };
+        }
+
+        // Phân tích dao động nội tại
+        function analyzeVariability() {
+            const variability = document.getElementById('variability').value;
+            
+            if (variability === 'normal') {
+                return { category: 'normal', description: 'Bình thường (6-25 bpm)' };
+            }
+            
+            if (variability === 'sinusoidal') {
+                return { category: 'abnormal', description: 'Dạng hình sin (sinusoidal)' };
+            }
+            
+            if (variability === 'absent' || variability === 'minimal') {
+                const duration = document.getElementById('variability-duration').value;
+                if (duration === '30-40' || duration === '40-50') {
+                    return { category: 'suspicious', description: '< 5 bpm trong 30-50 phút' };
+                } else if (duration === '50-90' || duration === '>90') {
+                    return { category: 'abnormal', description: '< 5 bpm > 50 phút' };
+                } else {
+                    return { category: 'suspicious', description: '< 5 bpm (chưa xác định thời gian)' };
+                }
+            }
+            
+            if (variability === 'increased') {
+                const duration = document.getElementById('variability-increased-duration').value;
+                if (duration === '<10') {
+                    return { category: 'suspicious', description: '> 25 bpm trong < 10 phút' };
+                } else if (duration === '>10') {
+                    return { category: 'abnormal', description: '> 25 bpm > 10 phút' };
+                } else {
+                    return { category: 'suspicious', description: '> 25 bpm (chưa xác định thời gian)' };
+                }
+            }
+            
+            return { category: 'normal', description: 'Chưa đánh giá' };
+        }
+
+        // Phân tích nhịp giảm (cập nhật để hỗ trợ multiple)
+        function analyzeDecelerations() {
+            const noDecel = document.getElementById('no-decel').checked;
+            const earlyDecel = document.getElementById('early-decel').checked;
+            const variableDecel = document.getElementById('variable-decel').checked;
+            const lateDecel = document.getElementById('late-decel').checked;
+            const prolongedDecel = document.getElementById('prolonged-decel').checked;
+            
+            if (noDecel) {
+                return { category: 'normal', description: 'Không có nhịp giảm' };
+            }
+            
+            // Collect all selected decelerations
+            let selectedDecels = [];
+            let worstCategory = 'normal';
+            
+            // Early deceleration
+            if (earlyDecel) {
+                selectedDecels.push('nhịp giảm sớm');
+                worstCategory = 'normal'; // Early luôn normal
+            }
+            
+            // Variable deceleration
+            if (variableDecel) {
+                const concerningFeatures = [
+                    document.getElementById('prolonged-60').checked,
+                    document.getElementById('decreased-variability').checked,
+                    document.getElementById('slow-return').checked,
+                    document.getElementById('lost-shouldering').checked
+                ].filter(Boolean).length;
+                
+                const repetitive = document.getElementById('variable-repetitive').value;
+                const duration = document.getElementById('variable-duration').value;
+                
+                let varDecel = 'nhịp giảm bất định';
+                const severity = document.getElementById('variable-severity').value;
+                if (severity && severity.includes('severe')) {
+                    varDecel += ' nặng';
+                }
+                
+                if (concerningFeatures > 0) {
+                    varDecel += ' có đặc điểm đáng ngại';
+                    
+                    if (repetitive === 'repetitive') {
+                        varDecel += ' lặp lại';
+                        if (duration === '>30') {
+                            worstCategory = updateWorstCategory(worstCategory, 'abnormal');
+                        } else if (duration === '<30') {
+                            worstCategory = updateWorstCategory(worstCategory, 'suspicious');
+                        }
+                    } else if (repetitive === 'non-repetitive') {
+                        if (duration === '<30') {
+                            worstCategory = updateWorstCategory(worstCategory, 'unclassified');
+                        } else if (duration === '>30') {
+                            worstCategory = updateWorstCategory(worstCategory, 'suspicious');
+                        }
+                    }
+                } else {
+                    worstCategory = updateWorstCategory(worstCategory, 'normal');
+                }
+                
+                if (duration === '>30') {
+                    varDecel += ' > 30 phút';
+                }
+                
+                selectedDecels.push(varDecel);
+            }
+            
+            // Late deceleration
+            if (lateDecel) {
+                const severity = document.getElementById('late-severity').value;
+                const repetitive = document.getElementById('late-repetitive').value;
+                const duration = document.getElementById('late-duration').value;
+                
+                let lateDecel = 'nhịp giảm muộn';
+                
+                if (severity === 'mild') {
+                    lateDecel += ' nhẹ';
+                    worstCategory = updateWorstCategory(worstCategory, 'unclassified');
+                } else if (severity === 'severe') {
+                    lateDecel += ' nặng';
+                    if (repetitive === 'repetitive') {
+                        lateDecel += ' lặp lại';
+                        if (duration === '>30') {
+                            worstCategory = updateWorstCategory(worstCategory, 'abnormal');
+                        } else if (duration === '<30') {
+                            worstCategory = updateWorstCategory(worstCategory, 'suspicious');
+                        }
+                    }
+                }
+                
+                selectedDecels.push(lateDecel);
+            }
+            
+            // Prolonged deceleration (highest priority)
+            if (prolongedDecel) {
+                const length = document.getElementById('prolonged-length').value;
+                const acuteBradycardia = document.getElementById('acute-bradycardia').value;
+                const severity = document.getElementById('prolonged-severity').value;
+                
+                let prolongedDecel = 'nhịp giảm kéo dài';
+                if (severity === 'severe') {
+                    prolongedDecel += ' nặng';
+                }
+                
+                if (length === '>3' || acuteBradycardia === 'yes') {
+                    worstCategory = updateWorstCategory(worstCategory, 'abnormal');
+                }
+                
+                selectedDecels.push(prolongedDecel);
+            }
+            
+            const description = selectedDecels.length > 0 ? selectedDecels.join(', ') : 'Chưa đánh giá đầy đủ';
+            
+            return { category: worstCategory, description: description };
+        }
+
+        // Hàm hỗ trợ để cập nhật category xấu nhất
+        function updateWorstCategory(current, newCategory) {
+            const hierarchy = {
+                'normal': 1,
+                'suspicious': 2,
+                'unclassified': 3,
+                'abnormal': 4
+            };
+            
+            return hierarchy[newCategory] > hierarchy[current] ? newCategory : current;
+        }
+
+        // Cập nhật getJapanDecelerationType để hỗ trợ multiple (ưu tiên theo thứ tự)
+        function getJapanDecelerationType() {
+            const noDecel = document.getElementById('no-decel').checked;
+            const earlyDecel = document.getElementById('early-decel').checked;
+            const variableDecel = document.getElementById('variable-decel').checked;
+            const lateDecel = document.getElementById('late-decel').checked;
+            const prolongedDecel = document.getElementById('prolonged-decel').checked;
+
+            if (noDecel) {
+                return { type: 'none', severity: null, description: 'Không có nhịp giảm' };
+            }
+
+            // Priority: Prolonged > Late > Variable > Early
+            // Chọn loại có priority cao nhất để phân loại, nhưng mô tả hết
+            let selectedTypes = [];
+            let primaryType = null;
+            
+            if (earlyDecel) {
+                selectedTypes.push('nhịp giảm sớm');
+                if (!primaryType) primaryType = { type: 'early', severity: null };
+            }
+            
+            if (variableDecel) {
+                const severity = document.getElementById('variable-severity').value;
+                let isSevere = severity === 'severe-70' || severity === 'severe-80';
+                let varDesc = `nhịp giảm bất định ${isSevere ? 'nặng' : 'nhẹ'}`;
+                selectedTypes.push(varDesc);
+                primaryType = { type: 'variable', severity: isSevere ? 'severe' : 'mild' };
+            }
+            
+            if (lateDecel) {
+                const severity = document.getElementById('late-severity').value;
+                let isSevere = severity === 'severe';
+                let lateDesc = `nhịp giảm muộn ${isSevere ? 'nặng' : 'nhẹ'}`;
+                selectedTypes.push(lateDesc);
+                primaryType = { type: 'late', severity: isSevere ? 'severe' : 'mild' };
+            }
+            
+            if (prolongedDecel) {
+                const severity = document.getElementById('prolonged-severity').value;
+                let isSevere = severity === 'severe';
+                let prolongedDesc = `nhịp giảm kéo dài ${isSevere ? 'nặng' : 'nhẹ'}`;
+                selectedTypes.push(prolongedDesc);
+                primaryType = { type: 'prolonged', severity: isSevere ? 'severe' : 'mild' };
+            }
+
+            const description = selectedTypes.length > 0 ? selectedTypes.join(', ') : 'Chưa xác định';
+            
+            return {
+                type: primaryType ? primaryType.type : 'none',
+                severity: primaryType ? primaryType.severity : null,
+                description: description
+            };
+        }
+
+        // Tính toán phân loại Hiệp hội Sản phụ khoa Nhật Bản (5 mức)
+        function calculateJapanClassification() {
+            // Phân tích các thành phần
+            const baselineCategory = getJapanBaselineCategory();
+            const variabilityCategory = getJapanVariabilityCategory();
+            const deceleration = getJapanDecelerationType();
+
+            // Kiểm tra Unclassified cases trước
+            if (variabilityCategory === 'marked' && 
+                (deceleration.type === 'none' || deceleration.type === 'early')) {
+                return {
+                    level: 'Unclassified',
+                    color: '#9e9e9e',
+                    details: `Baseline: ${baselineCategory}\nVariability: Marked (>25 bpm)\nDeceleration: ${deceleration.description}\n\nKhông thể phân loại theo bảng Nhật Bản do biến động quá cao kết hợp với không có hoặc chỉ có nhịp giảm sớm.`,
+                    interpretation: 'Cần theo dõi chặt chẽ và đánh giá lại. Biến động quá cao có thể do nhiều nguyên nhân khác nhau.'
+                };
+            }
+
+            // Tính mức độ dựa trên bảng
+            let level = 1; // Mặc định
+
+            // Logic chính dựa trên bảng
+            if (variabilityCategory === 'moderate') {
+                if (baselineCategory === '110-160') {
+                    if (deceleration.type === 'none') level = 1;
+                    else if (deceleration.type === 'early') level = 2;
+                    else if (deceleration.type === 'variable') {
+                        level = deceleration.severity === 'mild' ? 2 : 3;
+                    }
+                    else if (deceleration.type === 'late') {
+                        level = 3; // Cả mild và severe đều là 3
+                    }
+                    else if (deceleration.type === 'prolonged') {
+                        level = deceleration.severity === 'mild' ? 3 : 4;
+                    }
+                }
+                else if (baselineCategory === '>160') {
+                    if (deceleration.type === 'none' || deceleration.type === 'early') level = 2;
+                    else if (deceleration.type === 'variable') level = 3;
+                    else if (deceleration.type === 'late') {
+                        level = deceleration.severity === 'mild' ? 3 : 4;
+                    }
+                    else if (deceleration.type === 'prolonged') {
+                        level = deceleration.severity === 'mild' ? 3 : 4;
+                    }
+                }
+                else if (baselineCategory === '80-110') {
+                    if (deceleration.type === 'none' || deceleration.type === 'early') level = 3;
+                    else if (deceleration.type === 'variable') {
+                        level = deceleration.severity === 'mild' ? 3 : 4;
+                    }
+                    else if (deceleration.type === 'late' || deceleration.type === 'prolonged') level = 4;
+                }
+                else if (baselineCategory === '<80') {
+                    level = 4; // Tất cả đều là 4, ngoại trù một số severe cases có thể là 5
+                    if (deceleration.type === 'variable' && deceleration.severity === 'severe') level = 5;
+                }
+            }
+            else if (variabilityCategory === 'minimal') {
+                if (baselineCategory === '110-160') {
+                    if (deceleration.type === 'none' || deceleration.type === 'early') level = 3;
+                    else if (deceleration.type === 'variable') {
+                        level = deceleration.severity === 'mild' ? 3 : 4;
+                        if (deceleration.severity === 'severe') level = 5; // Từ bảng
+                    }
+                    else if (deceleration.type === 'late') {
+                        level = deceleration.severity === 'mild' ? 3 : 4;
+                    }
+                    else if (deceleration.type === 'prolonged') level = 4;
+                }
+                else if (baselineCategory === '>160') {
+                    if (deceleration.type === 'none' || deceleration.type === 'early') level = 3;
+                    else if (deceleration.type === 'variable') level = 4;
+                    else if (deceleration.type === 'late') {
+                        level = deceleration.severity === 'mild' ? 4 : 5;
+                    }
+                    else if (deceleration.type === 'prolonged') level = 4;
+                }
+                else if (baselineCategory === '80-110' || baselineCategory === '<80') {
+                    level = 5; // Tất cả đều là 5
+                }
+            }
+            else if (variabilityCategory === 'undetectable') {
+                if (deceleration.type === 'none') level = 4;
+                else level = 5; // Tất cả các loại deceleration khác đều là 5
+            }
+            else if (variabilityCategory === 'marked') {
+                // Từ bảng: Variable/Late/Prolonged với Marked đều có phân loại
+                if (deceleration.type === 'variable') level = 3;
+                else if (deceleration.type === 'late') {
+                    level = deceleration.severity === 'mild' ? 3 : 4;
+                }
+                else if (deceleration.type === 'prolonged') {
+                    level = deceleration.severity === 'mild' ? 3 : 4;
+                }
+            }
+            else if (variabilityCategory === 'sinusoidal') {
+                if (deceleration.type === 'none' || deceleration.type === 'early') level = 4;
+                else if (deceleration.type === 'variable' || deceleration.type === 'prolonged') {
+                    level = deceleration.severity === 'mild' ? 4 : 5;
+                }
+                else if (deceleration.type === 'late') level = 5;
+            }
+
+            // Tạo mô tả chi tiết
+            const details = [
+                `Tim thai căn bản: ${getBaselineDescription(baselineCategory)}`,
+                `Dao động nội tại: ${getVariabilityDescription(variabilityCategory)}`,
+                `Nhịp giảm: ${deceleration.description}`,
+                '',
+                `Mức độ được xác định dựa trên bảng phân loại 5 mức của Hiệp hội Sản phụ khoa Nhật Bản.`
+            ].join('\n');
+
+            // Màu sắc theo mức độ
+            const colors = {
+                1: '#4caf50',  // Xanh lá
+                2: '#8bc34a',  // Xanh lá nhạt
+                3: '#ff9800',  // Cam
+                4: '#f44336',  // Đỏ
+                5: '#d32f2f'   // Đỏ đậm
+            };
+
+            // Ý nghĩa lâm sàng
+            const interpretations = {
+                1: 'Mức độ 1: CTG bình thường, tiếp tục theo dõi thường quy.',
+                2: 'Mức độ 2: CTG gần như bình thường, theo dõi tiếp tục.',
+                3: 'Mức độ 3: CTG có dấu hiệu bất thường nhẹ, cần theo dõi chặt chẽ.',
+                4: 'Mức độ 4: CTG bất thường, cần can thiệp và đánh giá sớm.',
+                5: 'Mức độ 5: CTG bất thường nặng, cần can thiệp ngay lập tức.'
+            };
+
+            return {
+                level: `Mức độ ${level}`,
+                color: colors[level],
+                details: details,
+                interpretation: interpretations[level]
+            };
+        }
+
+        // Tính toán phân loại theo Sinh lý (Physiological Interpretation) - Cập nhật logic
+        function calculatePhysiologicalClassification() {
+            // Thu thập thông tin
+            const baseline = document.getElementById('fhr-baseline').value;
+            const baselineDetail = getBaselineDetail();
+            const variability = document.getElementById('variability').value;
+            const prolongedDecel = document.getElementById('prolonged-decel').checked;
+            const prolongedLength = document.getElementById('prolonged-length').value;
+            const timeInDecelMore = document.getElementById('time-in-decel-more').checked;
+            const baselineRiseAfterDecel = document.getElementById('baseline-rise-after-decel').checked;
+            const lostAccelerations = document.getElementById('lost-accelerations').value;
+            const hasRepetitiveDecel = hasRepetitiveDecelerations();
+            const sleepWakeCycle = document.getElementById('sleep-wake-cycle').value;
+
+            // 1. Kiểm tra Acute Hypoxia trước (ưu tiên cao nhất)
+            if (prolongedDecel && prolongedLength === '>3') {
+                return {
+                    classification: 'Acute Hypoxia',
+                    color: '#d32f2f',
+                    details: 'Nhịp giảm kéo dài > 3 phút\n\nĐây là dấu hiệu thiếu oxy cấp tính, cần can thiệp ngay lập tức.',
+                    management: 'Loại trừ 3 tai biến cấp (rối loạn cuống rốn, nhau bong non, vỡ tử cung)\n• Nếu nghi ngờ tai biến → chuẩn bị sinh ngay lập tức\n• Điều chỉnh nguyên nhân có thể phục hồi\n• Nếu không cải thiện trong 9 phút hoặc bất kỳ tai biến nào được chẩn đoán → sinh ngay lập tức bằng đường nhanh nhất và an toàn nhất'
+                };
+            }
+
+            // 2. Kiểm tra Subacute Hypoxia
+            if (timeInDecelMore) {
+                let features = ['Thời gian trong nhịp giảm > thời gian ở baseline'];
+                
+                if (variability === 'increased') {
+                    features.push('Kèm theo biến động tăng (saltatory pattern)');
+                }
+
+                return {
+                    classification: 'Subacute Hypoxia',
+                    color: '#f44336',
+                    details: features.join('\n') + '\n\nDấu hiệu thiếu oxy bán cấp, cần can thiệp sớm.',
+                    management: 'Giai đoạn 1:\n• Ngừng prostaglandin/ngừng truyền oxytocin\n• Nếu không cải thiện → cần sinh con ngay\n• Nếu vẫn không có bằng chứng cải thiện trong 10-15 phút → đánh giá lại tình hình và thúc sinh con\n\nGiai đoạn 2:\n• Ngừng mẹ ép trong các cơn co cho đến khi có cải thiện\n• Nếu không cải thiện → xem xét sinh con nếu sinh con không sắp xảy ra hoặc thúc sinh con bằng phẫu thuật'
+                };
+            }
+
+            // 3. Kiểm tra No Hypoxia
+            if (isNormalCTG()) {
+                return {
+                    classification: 'No Hypoxia',
+                    color: '#4caf50',
+                    details: 'Baseline phù hợp tuổi thai (110-160 bpm ổn định)\nDao động nội tại bình thường (6-25 bpm)\nKhông có nhịp giảm lặp lại\n\nCTG bình thường, không có dấu hiệu thiếu oxy.',
+                    management: 'Xem xét liệu CTG có cần tiếp tục không\nNếu tiếp tục CTG, thực hiện đánh giá thường quy hàng giờ'
+                };
+            }
+
+            // 4. Kiểm tra Gradually Evolving Hypoxia
+            const hasBaselineRise = checkBaselineRise();
+            const hasSignsOfHypoxia = baselineRiseAfterDecel || hasRepetitiveDecel || lostAccelerations === 'yes';
+            
+            if (hasSignsOfHypoxia) {
+                // Phân biệt Compensated vs Decompensated
+                const isDecompensated = checkDecompensated();
+                
+                if (isDecompensated) {
+                    return {
+                        classification: 'Gradually Evolving Hypoxia - Decompensated',
+                        color: '#f44336',
+                        details: getDecompensatedFeatures(),
+                        management: 'Cần can thiệp khẩn cấp để đảo ngược tình trạng thiếu oxy (ngừng prostaglandin, ngừng truyền oxytocin, sinh con nhanh)\nNên thúc sinh con nếu không thấy dấu hiệu cải thiện'
+                    };
+                } else {
+                    return {
+                        classification: 'Gradually Evolving Hypoxia - Compensated',
+                        color: '#ff9800',
+                        details: getCompensatedFeatures(),
+                        management: 'Có khả năng đáp ứng với các can thiệp bảo tồn\nĐánh giá lại thường xuyên mỗi 30-60 phút để đánh giá các dấu hiệu tiến triển thiếu oxy tiếp theo và can thiệp có cải thiện hay không\nCác nguyên nhân khác như giảm dự trữ nhau thai PHẢI được xem xét và giải quyết phù hợp'
+                    };
+                }
+            }
+
+            // 5. Trường hợp có repetitive decelerations nhưng chưa đủ tiêu chuẩn Gradually Evolving
+            if (hasRepetitiveDecel && !hasBaselineRise && !baselineRiseAfterDecel && lostAccelerations !== 'yes') {
+                return {
+                    classification: 'Thai có dấu hiệu bắt đầu thiếu oxy',
+                    color: '#ff9800',
+                    details: 'Có nhịp giảm lặp lại nhưng chưa có baseline tăng hoặc mất nhịp tăng\n\nDấu hiệu sớm của thiếu oxy, cần theo dõi chặt chẽ.',
+                    management: 'Theo dõi chặt chẽ và đánh giá lại thường xuyên\nChuẩn bị can thiệp nếu có dấu hiệu tiến triển\nXem xét các yếu tố nguy cơ khác'
+                };
+            }
+
+            // Mặc định: Không xác định rõ
+            return {
+                classification: 'Không xác định rõ',
+                color: '#9e9e9e',
+                details: 'Không đủ thông tin để phân loại theo sinh lý hoặc có đặc điểm không điển hình.',
+                management: 'Cần theo dõi chặt chẽ và đánh giá lại. Xem xét các yếu tố lâm sàng khác.'
+            };
+        }
+
+        // Cập nhật hàm hỗ trợ
+        function checkDecompensated() {
+            const variability = document.getElementById('variability').value;
+            const baseline = document.getElementById('fhr-baseline').value;
+            const baselineDetail = getBaselineDetail();
+            const hasBaselineRise = checkBaselineRise();
+            
+            // Nếu có baseline tăng NHƯNG variability abnormal → Decompensated
+            if (hasBaselineRise && (variability === 'absent' || variability === 'minimal' || variability === 'increased')) {
+                return true;
+            }
+            
+            // Dao động giảm hoặc tăng
+            if (variability === 'absent' || variability === 'minimal' || variability === 'increased') {
+                return true;
+            }
+            
+            // Baseline không ổn định hoặc đi xuống
+            if (baseline === '110-160' && (baselineDetail === 'unstable' || baselineDetail === 'downward')) {
+                return true;
+            }
+            
+            // Baseline chậm < 110
+            if (baseline === '<80' || baseline === '80-99' || baseline === '100-109') {
+                return true;
+            }
+            
+            return false;
+        }
+
+        function getCompensatedFeatures() {
+            let features = [];
+            
+            const baselineRiseAfterDecel = document.getElementById('baseline-rise-after-decel').checked;
+            const hasBaselineRise = checkBaselineRise();
+            const variability = document.getElementById('variability').value;
+            
+            if (baselineRiseAfterDecel) {
+                features.push('Tim thai căn bản tăng sau khi xuất hiện nhịp giảm');
+            }
+            
+            if (hasBaselineRise) {
+                features.push('Baseline tăng');
+            }
+            
+            if (variability === 'normal') {
+                features.push('Dao động nội tại bình thường');
+            }
+            
+            const baselineDetail = getBaselineDetail();
+            if (baselineDetail === 'stable') {
+                features.push('Baseline ổn định');
+            }
+            
+            if (hasRepetitiveDecelerations()) {
+                features.push('Có nhịp giảm lặp lại');
+            }
+            
+            const lostAccelerations = document.getElementById('lost-accelerations').value;
+            if (lostAccelerations === 'yes') {
+                features.push('Mất nhịp tăng sau những nhịp giảm');
+                
+                // Kiểm tra chu kỳ tỉnh-ngủ
+                const sleepWakeCycle = document.getElementById('sleep-wake-cycle').value;
+                if (sleepWakeCycle === 'yes') {
+                    features.push('(Mất nhịp tăng trong giai đoạn ngủ ít đáng ngại hơn)');
+                }
+            }
+            
+            return features.join('\n') + '\n\nThiếu oxy diễn tiến dần nhưng còn bù trừ được.';
+        }
+
+        function getDecompensatedFeatures() {
+            let features = [];
+            
+            const variability = document.getElementById('variability').value;
+            if (variability === 'absent' || variability === 'minimal') {
+                features.push('Dao động nội tại giảm');
+            } else if (variability === 'increased') {
+                features.push('Dao động nội tại tăng');
+            }
+            
+            const baseline = document.getElementById('fhr-baseline').value;
+            const baselineDetail = getBaselineDetail();
+            
+            if (baseline === '110-160' && baselineDetail === 'unstable') {
+                features.push('Baseline không ổn định');
+            } else if (baseline === '110-160' && baselineDetail === 'downward') {
+                features.push('Baseline có xu hướng đi xuống dần (step ladder pattern to death)');
+            } else if (baseline === '<80' || baseline === '80-99' || baseline === '100-109') {
+                features.push('Baseline chậm < 110 bpm');
+            }
+            
+            const baselineRiseAfterDecel = document.getElementById('baseline-rise-after-decel').checked;
+            if (baselineRiseAfterDecel) {
+                features.push('Tim thai căn bản tăng sau khi xuất hiện nhịp giảm');
+            }
+            
+            if (hasRepetitiveDecelerations()) {
+                features.push('Có nhịp giảm lặp lại');
+            }
+            
+            return features.join('\n') + '\n\nThiếu oxy diễn tiến dần và đã mất bù trừ.';
+        }
+
+        // Tính toán phân loại FIGO 2015
+        function calculateFIGOClassification() {
+            const baseline = document.getElementById('fhr-baseline').value;
+            const variability = document.getElementById('variability').value;
+            const noDecel = document.getElementById('no-decel').checked;
+            const prolongedDecel = document.getElementById('prolonged-decel').checked;
+            const prolongedLength = document.getElementById('prolonged-length').value;
+            const lateDecel = document.getElementById('late-decel').checked;
+            const lateSeverity = document.getElementById('late-severity').value;
+            const lateRepetitive = document.getElementById('late-repetitive').value;
+            const lateDuration = document.getElementById('late-duration').value;
+            const accelerations = document.getElementById('accelerations').value;
+            
+            // Kiểm tra Pathological trước (ưu tiên cao nhất)
+            let pathologicalFeatures = [];
+            
+            // 1. Baseline < 100 bpm
+            if (baseline === '<80' || baseline === '80-99') {
+                pathologicalFeatures.push('Baseline < 100 bpm');
+            }
+            
+            // 2. Reduced/Increased variability hoặc Sinusoidal
+            if (variability === 'absent' || variability === 'minimal') {
+                pathologicalFeatures.push('Dao động nội tại giảm');
+            } else if (variability === 'increased') {
+                pathologicalFeatures.push('Dao động nội tại tăng');
+            } else if (variability === 'sinusoidal') {
+                pathologicalFeatures.push('Biểu đồ dạng hình sin');
+            }
+            
+            // 3. Repetitive late hoặc prolonged decelerations for > 30 min (or > 20 min if reduced variability)
+            if (lateDecel && lateSeverity === 'severe' && lateRepetitive === 'repetitive') {
+                const timeThreshold = (variability === 'absent' || variability === 'minimal') ? '<30' : '>30';
+                if (lateDuration === '>30' || (timeThreshold === '<30' && lateDuration === '<30')) {
+                    let duration = lateDuration === '>30' ? '> 30 phút' : '> 20 phút (do có dao động giảm)';
+                    pathologicalFeatures.push(`Nhịp giảm muộn nặng lặp lại ${duration}`);
+                }
+            }
+            
+            // Prolonged decelerations lặp lại
+            if (prolongedDecel) {
+                // Kiểm tra có phải prolonged deceleration > 5 min không
+                if (prolongedLength === '>3') {
+                    pathologicalFeatures.push('Nhịp giảm kéo dài > 5 phút');
+                } else {
+                    // Kiểm tra repetitive prolonged với thời gian
+                    // (Cần thêm logic để check repetitive prolonged)
+                    pathologicalFeatures.push('Nhịp giảm kéo dài lặp lại');
+                }
+            }
+            
+            if (pathologicalFeatures.length > 0) {
+                return {
+                    classification: 'Pathological',
+                    color: '#f44336',
+                    details: 'Đặc điểm Pathological:\n• ' + pathologicalFeatures.join('\n• ') + '\n\nXác suất cao thiếu oxy/toan hóa.',
+                    management: 'Hành động ngay lập tức để điều chỉnh các nguyên nhân có thể đảo ngược, các phương pháp phụ trợ, hoặc nếu điều này không khả thi thì thúc sinh con. Trong các tình huống cấp cứu, sinh con ngay lập tức nên được thực hiện.'
+                };
+            }
+            
+            // Kiểm tra Normal
+            let normalCriteria = [];
+            let failedNormalCriteria = [];
+            
+            // 1. Baseline 110-160 bpm
+            if (baseline === '110-160') {
+                const detail = document.getElementById('fhr-110-160-detail').value;
+                if (detail === 'stable') {
+                    normalCriteria.push('Baseline 110-160 bpm ổn định');
+                } else {
+                    failedNormalCriteria.push('Baseline không ổn định');
+                }
+            } else {
+                failedNormalCriteria.push('Baseline không trong khoảng 110-160 bpm');
+            }
+            
+            // 2. Variability 5-25 bpm
+            if (variability === 'normal') {
+                normalCriteria.push('Dao động nội tại 5-25 bpm');
+            } else {
+                failedNormalCriteria.push('Dao động nội tại không bình thường');
+            }
+            
+            // 3. No repetitive decelerations
+            const hasRepetitiveDecel = hasRepetitiveDecelerations();
+            if (!hasRepetitiveDecel) {
+                normalCriteria.push('Không có nhịp giảm lặp lại');
+            } else {
+                failedNormalCriteria.push('Có nhịp giảm lặp lại');
+            }
+            
+            // Kiểm tra absence of accelerations
+            let accelerationNote = '';
+            if (accelerations === 'no') {
+                accelerationNote = '\n\nLưu ý: Mất nhịp tăng trong chuyển dạ có ý nghĩa không rõ ràng.';
+            }
+            
+            if (normalCriteria.length === 3 && failedNormalCriteria.length === 0) {
+                return {
+                    classification: 'Normal',
+                    color: '#4caf50',
+                    details: 'Đủ 3/3 tiêu chuẩn Normal:\n• ' + normalCriteria.join('\n• ') + accelerationNote + '\n\nKhông có thiếu oxy/toan hóa.',
+                    management: 'Không cần can thiệp để cải thiện tình trạng oxy hóa thai nhi.'
+                };
+            }
+            
+            // Nếu không đủ tiêu chuẩn Normal và không có đặc điểm Pathological → Suspicious
+            return {
+                classification: 'Suspicious',
+                color: '#ff9800',
+                details: 'Thiếu ít nhất 1 đặc điểm của Normal nhưng không có đặc điểm Pathological:\n\nTiêu chuẩn Normal đạt được:\n• ' + 
+                         normalCriteria.join('\n• ') + 
+                         '\n\nTiêu chuẩn Normal không đạt:\n• ' + 
+                         failedNormalCriteria.join('\n• ') + 
+                         accelerationNote + '\n\nXác suất thấp thiếu oxy/toan hóa.',
+                management: 'Hành động để điều chỉnh các nguyên nhân có thể đảo ngược nếu được xác định, theo dõi sát hoặc các phương pháp phụ trợ.'
+            };
+        }
+
+        // Hàm hỗ trợ cho phân loại sinh lý
+        function getBaselineDetail() {
+            const baseline = document.getElementById('fhr-baseline').value;
+            if (baseline === '110-160') {
+                return document.getElementById('fhr-110-160-detail').value;
+            } else if (baseline === '100-109') {
+                return document.getElementById('fhr-100-109-detail').value;
+            }
+            return null;
+        }
+
+        function checkBaselineRise() {
+            const baseline = document.getElementById('fhr-baseline').value;
+            const detail = getBaselineDetail();
+            
+            // Tim thai nhanh (>160)
+            if (baseline === '160-179' || baseline === '>180') {
+                return true;
+            }
+            
+            // Tăng >= 20 bpm hoặc 10% so với trước đó
+            if (baseline === '110-160' && detail === 'increase') {
+                return true;
+            }
+            
+            return false;
+        }
+
+        function hasRepetitiveDecelerations() {
+            // Kiểm tra nhịp giảm muộn lặp lại
+            if (document.getElementById('late-decel').checked) {
+                const repetitive = document.getElementById('late-repetitive').value;
+                if (repetitive === 'repetitive') return true;
+            }
+            
+            // Kiểm tra nhịp giảm bất định lặp lại
+            if (document.getElementById('variable-decel').checked) {
+                const repetitive = document.getElementById('variable-repetitive').value;
+                if (repetitive === 'repetitive') return true;
+            }
+            
+            return false;
+        }
+
+        function isNormalCTG() {
+            const baseline = document.getElementById('fhr-baseline').value;
+            const variability = document.getElementById('variability').value;
+            const noDecel = document.getElementById('no-decel').checked;
+            
+            // Baseline phù hợp tuổi thai (110-160)
+            if (baseline !== '110-160') return false;
+            
+            const detail = document.getElementById('fhr-110-160-detail').value;
+            if (detail !== 'stable') return false;
+            
+            // Dao động bình thường
+            if (variability !== 'normal') return false;
+            
+            // Không có nhịp giảm lặp lại
+            if (!noDecel && hasRepetitiveDecelerations()) return false;
+            
+            return true;
+        }
+
+        function checkDecompensated() {
+            const variability = document.getElementById('variability').value;
+            const baseline = document.getElementById('fhr-baseline').value;
+            const baselineDetail = getBaselineDetail();
+            
+            // Dao động giảm hoặc tăng
+            if (variability === 'absent' || variability === 'minimal' || variability === 'increased') {
+                return true;
+            }
+            
+            // Baseline không ổn định hoặc đi xuống
+            if (baseline === '110-160' && (baselineDetail === 'unstable' || baselineDetail === 'downward')) {
+                return true;
+            }
+            
+            // Baseline chậm < 110
+            if (baseline === '<80' || baseline === '80-99' || baseline === '100-109') {
+                return true;
+            }
+            
+            return false;
+        }
+
+        function getCompensatedFeatures() {
+            let features = [];
+            
+            if (checkBaselineRise()) {
+                features.push('Tăng baseline với dao động bình thường và baseline ổn định');
+            }
+            
+            features.push('Có nhịp giảm và mất nhịp tăng');
+            
+            if (hasRepetitiveDecelerations()) {
+                features.push('Có nhịp giảm lặp lại');
+            }
+            
+            const lostAccelerations = document.getElementById('lost-accelerations').value;
+            if (lostAccelerations === 'yes') {
+                features.push('Mất nhịp tăng sau những nhịp giảm');
+            }
+            
+            return features.join('\n') + '\n\nThiếu oxy diễn tiến dần nhưng còn bù trừ được.';
+        }
+
+        function getDecompensatedFeatures() {
+            let features = [];
+            
+            const variability = document.getElementById('variability').value;
+            if (variability === 'absent' || variability === 'minimal') {
+                features.push('Dao động nội tại giảm');
+            } else if (variability === 'increased') {
+                features.push('Dao động nội tại tăng');
+            }
+            
+            const baseline = document.getElementById('fhr-baseline').value;
+            const baselineDetail = getBaselineDetail();
+            
+            if (baseline === '110-160' && baselineDetail === 'unstable') {
+                features.push('Baseline không ổn định');
+            } else if (baseline === '110-160' && baselineDetail === 'downward') {
+                features.push('Baseline có xu hướng đi xuống dần (step ladder pattern to death)');
+            } else if (baseline === '<80' || baseline === '80-99' || baseline === '100-109') {
+                features.push('Baseline chậm < 110 bpm');
+            }
+            
+            return features.join('\n') + '\n\nThiếu oxy diễn tiến dần và đã mất bù trừ.';
+        }
+
+        // Hàm hỗ trợ cho phân loại Nhật Bản
+        function getJapanBaselineCategory() {
+            const baseline = document.getElementById('fhr-baseline').value;
+            if (baseline === '<80') return '<80';
+            if (baseline === '80-99' || baseline === '100-109') return '80-110';
+            if (baseline === '110-160') return '110-160';
+            if (baseline === '160-179' || baseline === '>180') return '>160';
+            return '110-160'; // default
+        }
+
+        function getJapanVariabilityCategory() {
+            const variability = document.getElementById('variability').value;
+            if (variability === 'absent') return 'undetectable'; // <3 bpm
+            if (variability === 'minimal') return 'minimal'; // 3-5 bpm
+            if (variability === 'normal') return 'moderate'; // 6-25 bpm
+            if (variability === 'increased') return 'marked'; // >25 bpm
+            if (variability === 'sinusoidal') return 'sinusoidal';
+            return 'moderate'; // default
+        }
+
+        function getJapanDecelerationType() {
+            const noDecel = document.getElementById('no-decel').checked;
+            const earlyDecel = document.getElementById('early-decel').checked;
+            const variableDecel = document.getElementById('variable-decel').checked;
+            const lateDecel = document.getElementById('late-decel').checked;
+            const prolongedDecel = document.getElementById('prolonged-decel').checked;
+
+            if (noDecel) {
+                return { type: 'none', severity: null, description: 'Không có nhịp giảm' };
+            }
+
+            if (earlyDecel && !variableDecel && !lateDecel && !prolongedDecel) {
+                return { type: 'early', severity: null, description: 'Nhịp giảm sớm' };
+            }
+
+            if (variableDecel) {
+                // Kiểm tra severe variable dựa trên định nghĩa Nhật Bản
+                const severity = document.getElementById('variable-severity').value;
+                let isSevere = false;
+                
+                if (severity === 'severe-70' || severity === 'severe-80') {
+                    isSevere = true;
+                }
+
+                return {
+                    type: 'variable',
+                    severity: isSevere ? 'severe' : 'mild',
+                    description: `Nhịp giảm bất định ${isSevere ? 'nặng' : 'nhẹ'}`
+                };
+            }
+
+            if (lateDecel) {
+                const severity = document.getElementById('late-severity').value;
+                const isSevere = severity === 'severe'; // giảm > 15 bpm
+
+                return {
+                    type: 'late',
+                    severity: isSevere ? 'severe' : 'mild',
+                    description: `Nhịp giảm muộn ${isSevere ? 'nặng' : 'nhẹ'}`
+                };
+            }
+
+            if (prolongedDecel) {
+                const severity = document.getElementById('prolonged-severity').value;
+                const isSevere = severity === 'severe'; // Nadir < 80 bpm
+
+                return {
+                    type: 'prolonged',
+                    severity: isSevere ? 'severe' : 'mild',
+                    description: `Nhịp giảm kéo dài ${isSevere ? 'nặng' : 'nhẹ'}`
+                };
+            }
+
+            return { type: 'none', severity: null, description: 'Chưa xác định' };
+        }
+
+        function getBaselineDescription(category) {
+            const map = {
+                '<80': '< 80 bpm',
+                '80-110': '80-110 bpm',
+                '110-160': '110-160 bpm',
+                '>160': '> 160 bpm'
+            };
+            return map[category] || category;
+        }
+
+        function getVariabilityDescription(category) {
+            const map = {
+                'undetectable': 'Không phát hiện được (< 3 bpm)',
+                'minimal': 'Tối thiểu (3-5 bpm)',
+                'moderate': 'Vừa phải (6-25 bpm)',
+                'marked': 'Rõ rệt (> 25 bpm)',
+                'sinusoidal': 'Dạng hình sin'
+            };
+            return map[category] || category;
+        }
+
+        // Các hàm xử lý nút
+        function saveAndAnalyzeCTG() {
+            updateSummary();
+            
+            // Hiển thị kết quả phân tích (theo alphabetical order)
+            const acogClassification = calculateACOGClassification();
+            const figoClassification = calculateFIGOClassification();
+            const japanClassification = calculateJapanClassification();
+            const niceClassification = calculateNICEClassification();
+            const physioClassification = calculatePhysiologicalClassification();
+            
+            // ACOG 2009
+            document.getElementById('acog-classification').value = acogClassification.group;
+            document.getElementById('acog-details').value = acogClassification.details;
+            
+            // FIGO 2015
+            document.getElementById('figo-classification').value = figoClassification.classification;
+            document.getElementById('figo-classification').style.color = figoClassification.color;
+            document.getElementById('figo-details').value = figoClassification.details;
+            document.getElementById('figo-management').value = figoClassification.management;
+            
+            // Japan
+            document.getElementById('japan-classification').value = japanClassification.level;
+            document.getElementById('japan-classification').style.color = japanClassification.color;
+            document.getElementById('japan-details').value = japanClassification.details;
+            document.getElementById('japan-interpretation').value = japanClassification.interpretation;
+            
+            // NICE 2022
+            document.getElementById('nice-classification').value = niceClassification.classification;
+            document.getElementById('nice-classification').style.color = niceClassification.color;
+            document.getElementById('nice-details').value = niceClassification.details;
+            document.getElementById('nice-management').value = niceClassification.management;
+            
+            // Physiological
+            document.getElementById('physio-classification').value = physioClassification.classification;
+            document.getElementById('physio-classification').style.color = physioClassification.color;
+            document.getElementById('physio-details').value = physioClassification.details;
+            document.getElementById('physio-management').value = physioClassification.management;
+            
+            // Hiển thị section kết quả
+            document.getElementById('analysis-results').classList.remove('hidden');
+            
+            // Scroll đến kết quả
+            document.getElementById('analysis-results').scrollIntoView({ behavior: 'smooth' });
+            
+            // Upload lên Google Sheet
+            uploadToGoogleSheet({
+                acog: acogClassification.group,
+                figo: figoClassification.classification,
+                japan: japanClassification.level,
+                nice: niceClassification.classification,
+                physiological: physioClassification.classification
+            });
+            
+            alert('🎉 Đã phân tích CTG thành công theo 5 hệ thống: ACOG 2009, FIGO 2015, Hiệp hội Sản phụ khoa Nhật Bản, NICE 2022 và Phân loại Sinh lý!');
+        }
+
+        // Hàm upload dữ liệu lên Google Sheet
+        function uploadToGoogleSheet(classifications) {
+            // ===== CONFIG: Thay đổi URL Google Apps Script của bạn ở đây =====
+            const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDyCF1qQ8wkdppnoRuLA69bkOi9hT-EF5EoNdnQgQTTj4ttBg3Gk5nW-oWSijm7-0DVw/exec";
+            // ===================================================================
+            
+            try {
+                // Thu thập dữ liệu từ form
+                const patientId = document.getElementById('patient-id').value;
+                const diagnosis = document.getElementById('diagnosis').value;
+                const apgar1 = document.getElementById('apgar-1').value;
+                const apgar2 = document.getElementById('apgar-2').value;
+                const phLevel = document.getElementById('ph-level').value;
+                
+                // Lấy ảnh CTG (base64)
+                const ctgBeforeImg = document.querySelector('#preview-before img');
+                const ctgCurrentImg = document.querySelector('#preview-current img');
+                
+                const ctgBefore = ctgBeforeImg ? ctgBeforeImg.src : null;
+                const ctgCurrent = ctgCurrentImg ? ctgCurrentImg.src : null;
+                
+                // Tạo payload
+                const payload = {
+                    timestamp: new Date().toISOString(),
+                    patientId: patientId,
+                    diagnosis: diagnosis,
+                    ctgBefore: ctgBefore,
+                    ctgCurrent: ctgCurrent,
+                    classifications: {
+                        nice: classifications.nice,
+                        acog: classifications.acog,
+                        rcog: '', // Placeholder for RCOG if needed
+                        figo: classifications.figo,
+                        japan: classifications.japan,
+                        physiological: classifications.physiological
+                    },
+                    apgar1: apgar1,
+                    apgar2: apgar2,
+                    phLevel: phLevel
+                };
+                
+                console.log('Uploading to Google Sheet:', payload);
+                
+                // Gửi dữ liệu
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(() => {
+                    console.log('✅ Dữ liệu đã được gửi lên Google Sheet');
+                    // Hiển thị thông báo nhỏ
+                    showNotification('📊 Đã lưu dữ liệu lên Google Sheet', 'success');
+                })
+                .catch((error) => {
+                    console.error('❌ Lỗi khi upload lên Google Sheet:', error);
+                    showNotification('⚠️ Lỗi khi lưu lên Google Sheet', 'error');
+                });
+                
+            } catch (error) {
+                console.error('❌ Lỗi khi chuẩn bị dữ liệu:', error);
+                showNotification('⚠️ Lỗi khi chuẩn bị dữ liệu', 'error');
+            }
+        }
+
+        // Hàm hiển thị thông báo
+        function showNotification(message, type) {
+            // Tạo element thông báo
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                max-width: 300px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                transition: all 0.3s ease;
+                background: ${type === 'success' ? '#4caf50' : '#f44336'};
+            `;
+            notification.textContent = message;
+            
+            // Thêm vào DOM
+            document.body.appendChild(notification);
+            
+            // Auto remove sau 4 giây
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 4000);
+        }
+
+        function exportPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                
+                // Tạo PDF với font hỗ trợ tiếng Việt
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                let yPosition = 20;
+                const margin = 20;
+                const pageWidth = pdf.internal.pageSize.getWidth() - 2 * margin;
+                
+                // Header
+                pdf.setFontSize(18);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('BÁO CÁO PHÂN TÍCH CTG', margin, yPosition);
+                yPosition += 10;
+                
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(`Ngày phân tích: ${new Date().toLocaleDateString('vi-VN')}`, margin, yPosition);
+                yPosition += 15;
+
+                // Thông tin bệnh nhân
+                pdf.setFontSize(14);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('I. THÔNG TIN BỆNH NHÂN', margin, yPosition);
+                yPosition += 8;
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                
+                const patientId = document.getElementById('patient-id').value || 'Chưa nhập';
+                const diagnosis = document.getElementById('diagnosis').value || 'Chưa nhập';
+                const apgar1 = document.getElementById('apgar-1').value || '';
+                const apgar2 = document.getElementById('apgar-2').value || '';
+                const phLevel = document.getElementById('ph-level').value || 'Chưa chọn';
+                
+                pdf.text(`ID bệnh nhân: ${patientId}`, margin, yPosition); yPosition += 6;
+                
+                // Chia chẩn đoán thành nhiều dòng nếu quá dài
+                if (diagnosis.length > 80) {
+                    const diagnosisLines = pdf.splitTextToSize(`Chẩn đoán: ${diagnosis}`, pageWidth);
+                    diagnosisLines.forEach(line => {
+                        pdf.text(line, margin, yPosition);
+                        yPosition += 6;
+                    });
+                } else {
+                    pdf.text(`Chẩn đoán: ${diagnosis}`, margin, yPosition); yPosition += 6;
+                }
+                
+                if (apgar1 || apgar2) {
+                    pdf.text(`APGAR: ${apgar1}/${apgar2}`, margin, yPosition); yPosition += 6;
+                }
+                pdf.text(`pH cuống rốn: ${phLevel}`, margin, yPosition);
+                yPosition += 15;
+
+                // Mô tả CTG
+                pdf.setFontSize(14);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('II. MÔ TẢ CTG', margin, yPosition);
+                yPosition += 8;
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                const ctgDescription = document.getElementById('ctg-description').value || 'Chưa có mô tả';
+                const descriptionLines = pdf.splitTextToSize(ctgDescription, pageWidth);
+                descriptionLines.forEach(line => {
+                    pdf.text(line, margin, yPosition);
+                    yPosition += 6;
+                });
+                yPosition += 10;
+
+                // Kết quả phân loại
+                pdf.setFontSize(14);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('III. KẾT QUẢ PHÂN LOẠI', margin, yPosition);
+                yPosition += 10;
+
+                // ACOG 2009
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('1. ACOG 2009:', margin, yPosition);
+                yPosition += 6;
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                const acogResult = document.getElementById('acog-classification').value || 'Chưa phân tích';
+                pdf.text(`Kết quả: ${acogResult}`, margin + 5, yPosition);
+                yPosition += 10;
+
+                // FIGO 2015
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('2. FIGO 2015:', margin, yPosition);
+                yPosition += 6;
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                const figoResult = document.getElementById('figo-classification').value || 'Chưa phân tích';
+                pdf.text(`Kết quả: ${figoResult}`, margin + 5, yPosition);
+                yPosition += 10;
+
+                // Japan
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('3. Hiệp hội Sản phụ khoa Nhật Bản:', margin, yPosition);
+                yPosition += 6;
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                const japanResult = document.getElementById('japan-classification').value || 'Chưa phân tích';
+                pdf.text(`Kết quả: ${japanResult}`, margin + 5, yPosition);
+                yPosition += 10;
+
+                // NICE 2022
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('4. NICE 2022:', margin, yPosition);
+                yPosition += 6;
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                const niceResult = document.getElementById('nice-classification').value || 'Chưa phân tích';
+                pdf.text(`Kết quả: ${niceResult}`, margin + 5, yPosition);
+                yPosition += 10;
+
+                // Physiological
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('5. Phân loại Sinh lý:', margin, yPosition);
+                yPosition += 6;
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                const physioResult = document.getElementById('physio-classification').value || 'Chưa phân tích';
+                pdf.text(`Kết quả: ${physioResult}`, margin + 5, yPosition);
+                yPosition += 15;
+
+                // Footer
+                pdf.setFontSize(9);
+                pdf.setFont('helvetica', 'italic');
+                pdf.text('Báo cáo được tạo tự động từ Hệ thống Phân tích CTG', margin, 280);
+                
+                // Lưu file
+                const fileName = `CTG_Analysis_${patientId || 'Unknown'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                pdf.save(fileName);
+                
+                showNotification('📄 Đã xuất file PDF thành công!', 'success');
+                
+            } catch (error) {
+                console.error('Lỗi khi xuất PDF:', error);
+                showNotification('❌ Lỗi khi xuất PDF: ' + error.message, 'error');
+            }
+        }
+
+        function reassess() {
+            if (confirm('🔄 Bạn có chắc muốn đánh giá lại? Tất cả dữ liệu hiện tại sẽ bị xóa.')) {
+                document.querySelectorAll('input, select, textarea').forEach(element => {
+                    if (element.type === 'checkbox') {
+                        element.checked = false;
+                    } else {
+                        element.value = '';
+                    }
+                });
+                
+                document.querySelectorAll('.image-preview').forEach(preview => {
+                    preview.innerHTML = '';
+                });
+                
+                document.querySelectorAll('.conditional-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Ẩn kết quả phân tích
+                document.getElementById('analysis-results').classList.add('hidden');
+                
+                updateSummary();
+            }
+        }
+
+        // Thêm event listeners cho các trường để tự động cập nhật tóm tắt
+        document.addEventListener('change', updateSummary);
+        document.addEventListener('input', updateSummary);
+    </script>
+</body>
+</html>
