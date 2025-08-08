@@ -334,7 +334,7 @@
     <div class="container">
         <div class="header">
             <h1>📊 Phân tích CTG theo các phân loại</h1>
-            <p>Diễn giải và phân loại CTG theo các hiệp hội bao gồm ACOG, NICE, FIGO, JOG, Physiology interpretation</p>
+            <p>Diễn giải và phân loại CTG theo các hiệp hội bao gồm ACOG, NICE, FIGO, JCOG, Physiological interpretation</p>
         </div>
 
         <!-- Phần I: Thông tin lâm sàng -->
@@ -351,7 +351,7 @@
 
                 <div class="form-group">
                     <label for="diagnosis">Chẩn đoán và ghi chú:</label>
-                    <textarea id="diagnosis" rows="4" placeholder="Bác sĩ tự nhập note..."></textarea>
+                    <textarea id="diagnosis" rows="4" placeholder="Ví dụ: Con so, thai 39 tuần, ngôi đầu, chuyển dạ hoạt động / VMC,..."></textarea>
                 </div>
 
                 <div class="form-group">
@@ -529,7 +529,7 @@
                                 <div style="margin-bottom: 15px;">
                                     <label>Mức độ:</label>
                                     <select id="variable-severity">
-                                        <option value="">Chọn mức độ</option>
+                                        <option value="">Chọn mức độ (cho phân loại JSOG)</option>
                                         <option value="mild">Nhẹ</option>
                                         <option value="severe-70">Nặng: Nadir < 70 nhịp/phút và kéo dài > 30 giây</option>
                                         <option value="severe-80">Nặng: Nadir 70-80 nhịp/phút và kéo dài > 60 giây</option>
@@ -586,7 +586,7 @@
                                 <div style="margin-bottom: 15px;">
                                     <label>Mức độ:</label>
                                     <select id="late-severity">
-                                        <option value="">Chọn mức độ</option>
+                                        <option value="">Chọn mức độ (cho phân loại JSOG)</option>
                                         <option value="mild">Nhẹ</option>
                                         <option value="severe">Nặng: Nadir thấp hơn 15 bpm so với tim thai căn bản</option>
                                     </select>
@@ -620,7 +620,7 @@
                                 <div style="margin-bottom: 15px;">
                                     <label>Mức độ:</label>
                                     <select id="prolonged-severity">
-                                        <option value="">Chọn mức độ</option>
+                                        <option value="">Chọn mức độ (cho phân loại JSOG)</option>
                                         <option value="mild">Nhẹ</option>
                                         <option value="severe">Nặng: Nadir < 80 bpm</option>
                                     </select>
@@ -2744,5 +2744,6 @@ if (!variableDecel && !prolongedDecel) {
     </script>
 </body>
 </html>
+
 
 
