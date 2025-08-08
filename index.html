@@ -333,7 +333,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📊 Phân tích CTG theo các phân loại</h1>
+            <h1>📊 Phân tích CTG tổng quát</h1>
             <p>Diễn giải và phân loại CTG theo các hiệp hội bao gồm ACOG, NICE, FIGO, JCOG, Physiological interpretation</p>
         </div>
 
@@ -451,7 +451,7 @@
                             <option value="stable">Ổn định và phù hợp tuổi thai</option>
                             <option value="unstable">Không ổn định (lúc cao lúc thấp)</option>
                             <option value="increase">Tăng ≥ 20 bpm hoặc 10% so với trước đó</option>
-                            <option value="downward">Có dấu hiệu đi xuống dần</option>
+                            <option value="downward">Có dấu hiệu đi xuống</option>
                         </select>
                     </div>
 
@@ -459,7 +459,7 @@
                         <label>Tim thai 100-109 bpm:</label>
                         <select id="fhr-100-109-detail">
                             <option value="">Chọn tình trạng</option>
-                            <option value="previous">Trước đó có như vậy</option>
+                            <option value="previous">Trước đó như vậy</option>
                             <option value="new">100-109 này là mới xuất hiện</option>
                         </select>
                     </div>
@@ -474,7 +474,7 @@
                         <option value="minimal">Tối thiểu (3-5)</option>
                         <option value="normal">Bình thường (6-25)</option>
                         <option value="increased">Tăng (>25)</option>
-                        <option value="sinusoidal">Hình dạng sin</option>
+                        <option value="sinusoidal">Hình sin</option>
                     </select>
 
                     <div id="variability-absent-minimal" class="conditional-section hidden">
@@ -489,7 +489,7 @@
                     </div>
 
                     <div id="variability-increased" class="conditional-section hidden">
-                        <label>Thời gian tăng:</label>
+                        <label>Thời gian tăng dao động:</label>
                         <select id="variability-increased-duration">
                             <option value="">Chọn thời gian</option>
                             <option value="<10">< 10 phút</option>
@@ -531,8 +531,8 @@
                                     <select id="variable-severity">
                                         <option value="">Chọn mức độ (cho phân loại JSOG)</option>
                                         <option value="mild">Nhẹ</option>
-                                        <option value="severe-70">Nặng: Nadir < 70 nhịp/phút và kéo dài > 30 giây</option>
-                                        <option value="severe-80">Nặng: Nadir 70-80 nhịp/phút và kéo dài > 60 giây</option>
+                                        <option value="severe-70">Nặng: Nadir < 70 bpm và kéo dài > 30s</option>
+                                        <option value="severe-80">Nặng: Nadir 70-80 bpm và kéo dài > 60s</option>
                                     </select>
                                 </div>
 
@@ -553,7 +553,7 @@
                                         </div>
                                         <div class="checkbox-item">
                                             <input type="checkbox" id="lost-shouldering">
-                                            <label for="lost-shouldering">Mất dạng vai (shouldering)</label>
+                                            <label for="lost-shouldering">Mất dạng vai</label>
                                         </div>
                                     </div>
                                 </div>
@@ -588,7 +588,7 @@
                                     <select id="late-severity">
                                         <option value="">Chọn mức độ (cho phân loại JSOG)</option>
                                         <option value="mild">Nhẹ</option>
-                                        <option value="severe">Nặng: Nadir thấp hơn 15 bpm so với tim thai căn bản</option>
+                                        <option value="severe">Nặng: Nadir thấp hơn 15 bpm so với TTCB</option>
                                     </select>
                                 </div>
 
@@ -1792,10 +1792,10 @@ if (!variableDecel && !prolongedDecel) {
             // 1. Kiểm tra Acute Hypoxia trước (ưu tiên cao nhất)
             if (prolongedDecel && prolongedLength === '>3') {
                 return {
-                    classification: 'Acute Hypoxia',
+                    classification: 'Thiếu Oxy cấp',
                     color: '#d32f2f',
                     details: 'Nhịp giảm kéo dài > 3 phút\n\nĐây là dấu hiệu thiếu oxy cấp tính, cần can thiệp ngay lập tức.',
-                    management: 'Loại trừ 3 tai biến cấp (rối loạn cuống rốn, nhau bong non, vỡ tử cung)\n• Nếu nghi ngờ tai biến → chuẩn bị sinh ngay lập tức\n• Điều chỉnh nguyên nhân có thể phục hồi\n• Nếu không cải thiện trong 9 phút hoặc bất kỳ tai biến nào được chẩn đoán → sinh ngay lập tức bằng đường nhanh nhất và an toàn nhất'
+                    management: 'Loại trừ 3 tai biến sản khoa (sa dây rốn, nhau bong non, vỡ tử cung)\n• Nếu nghi ngờ → chuẩn bị sinh ngay \n• Điều chỉnh nguyên nhân có thể phục hồi\n• Nếu không cải thiện trong 9 phút hoặc bất kỳ tai biến nào được chẩn đoán → sinh ngay bằng đường nhanh nhất và an toàn nhất'
                 };
             }
 
@@ -1808,20 +1808,20 @@ if (!variableDecel && !prolongedDecel) {
                 }
 
                 return {
-                    classification: 'Subacute Hypoxia',
+                    classification: 'Thiếu Oxy bán cấp',
                     color: '#f44336',
                     details: features.join('\n') + '\n\nDấu hiệu thiếu oxy bán cấp, cần can thiệp sớm.',
-                    management: 'Giai đoạn 1:\n• Ngừng prostaglandin/ngừng truyền oxytocin\n• Nếu không cải thiện → cần sinh con ngay\n• Nếu vẫn không có bằng chứng cải thiện trong 10-15 phút → đánh giá lại tình hình và thúc sinh con\n\nGiai đoạn 2:\n• Ngừng mẹ ép trong các cơn co cho đến khi có cải thiện\n• Nếu không cải thiện → xem xét sinh con nếu sinh con không sắp xảy ra hoặc thúc sinh con bằng phẫu thuật'
+                    management: 'Giai đoạn 1:\n• Ngừng prostaglandin/ngừng oxytocin\n• Nếu không cải thiện → cần sinh ngay\n• Nếu vẫn không có bằng chứng cải thiện trong 10-15 phút → đánh giá lại tình hình và giục sinh con\n\nGiai đoạn 2:\n• Ngừng rặn trong cơn gò cho đến khi có cải thiện\n• Nếu không cải thiện → xem xét chấm dứt thai kỳ ngay'
                 };
             }
 
             // 3. Kiểm tra No Hypoxia
             if (isNormalCTG()) {
                 return {
-                    classification: 'No Hypoxia',
+                    classification: 'Không thiếu Oxy',
                     color: '#4caf50',
                     details: 'Baseline phù hợp tuổi thai (110-160 bpm ổn định)\nDao động nội tại bình thường (6-25 bpm)\nKhông có nhịp giảm lặp lại\n\nCTG bình thường, không có dấu hiệu thiếu oxy.',
-                    management: 'Xem xét liệu CTG có cần tiếp tục không\nNếu tiếp tục CTG, thực hiện đánh giá thường quy hàng giờ'
+                    management: 'Xem xét có cần tiếp tục CTG không\nNếu tiếp tục CTG, thực hiện đánh giá thường quy hàng giờ'
                 };
             }
 
@@ -1835,17 +1835,17 @@ if (!variableDecel && !prolongedDecel) {
                 
                 if (isDecompensated) {
                     return {
-                        classification: 'Gradually Evolving Hypoxia - Decompensated',
+                        classification: 'Thiếu Oxy diễn tiến - Mất bù',
                         color: '#f44336',
                         details: getDecompensatedFeatures(),
-                        management: 'Cần can thiệp khẩn cấp để đảo ngược tình trạng thiếu oxy (ngừng prostaglandin, ngừng truyền oxytocin, sinh con nhanh)\nNên thúc sinh con nếu không thấy dấu hiệu cải thiện'
+                        management: 'Cần can thiệp khẩn cấp để đảo ngược tình trạng thiếu oxy (ngừng prostaglandin, ngừng truyền oxytocin, thúc đẩy chuyển dạ)\nNên giục sinh nếu không thấy dấu hiệu cải thiện'
                     };
                 } else {
                     return {
-                        classification: 'Gradually Evolving Hypoxia - Compensated',
+                        classification: 'Thiếu Oxy diễn tiến - Còn bù',
                         color: '#ff9800',
                         details: getCompensatedFeatures(),
-                        management: 'Có khả năng đáp ứng với các can thiệp bảo tồn\nĐánh giá lại thường xuyên mỗi 30-60 phút để đánh giá các dấu hiệu tiến triển thiếu oxy tiếp theo và can thiệp có cải thiện hay không\nCác nguyên nhân khác như giảm dự trữ nhau thai PHẢI được xem xét và giải quyết phù hợp'
+                        management: 'Có thể đáp ứng với các điều trị bảo tồn\nĐánh giá lại mỗi 30-60 phút để đánh giá dấu hiệu thiếu oxy tiến triển và xem can thiệp có cải thiện không\nCác nguyên nhân khác như suy chức năng bánh nhau PHẢI được đánh giá và xử trí tương ứng'
                     };
                 }
             }
@@ -2744,6 +2744,7 @@ if (!variableDecel && !prolongedDecel) {
     </script>
 </body>
 </html>
+
 
 
 
